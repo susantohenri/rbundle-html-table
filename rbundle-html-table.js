@@ -51,22 +51,24 @@ function rbundle_html_table_draw_body(table, dt) {
     dt.rows.add(body).draw()
     table.find(`tbody td`).attr(`contenteditable`, true)
     rbundle_html_table_special_case_trash(table, dt)
-    rbundle_html_table_special_case_custom_tbody(tbody, table, dt)
+    rbundle_html_table_special_case_custom_tbody(tbody, table, dt, function () {
+        rbundle_html_table_draw_body(table, dt)
+    })
 }
 
 function rbundle_html_table_translate_formula(formula, redraw) {
     var result = ``
 
-    // if not set
+    // if no attribute tbody
     if (undefined === formula) return result
     formula = formula.trim()
 
-    // string and number marked with (`), i.e: `N/A`, `153`
+    // tbody=",,`N/A`, `153`,,"
     if ('`' === formula.charAt(0) && '`' === formula.slice(-1)) {
         result = formula.substring(1, formula.length - 1)
     }
 
-    // field starts with 'field', i.e: field1243, field1122
+    // tbody=",,field1243,,"
     else if (formula.startsWith(`field`)) {
         const field = jQuery(`[name="item_meta[${formula.replace(`field`, ``)}]"]`)
         if (field.length > 0) {
@@ -75,20 +77,41 @@ function rbundle_html_table_translate_formula(formula, redraw) {
         }
     }
 
-    // show trash icon for deleting current row, keyword: 'trash'
+    // tbody=",,trash,,"
     else if (`trash` === formula) result = `<i class="fa-solid fa-trash"></i>`
 
     return result
 }
 
-function rbundle_html_table_special_case_custom_tbody(tbody, table, dt) {
-    const td_index = tbody.indexOf(`current-year-dash-index`)
+function rbundle_html_table_special_case_custom_tbody(tbody, table, dt, redraw) {
+    // tbody=",,current-year-dash-index,," => Current year - 2
+    var td_index = tbody.indexOf(`current-year-dash-index`)
     if (-1 < td_index) {
         for (var tr_index = 0; tr_index < table.find(`tbody tr`).length; tr_index++) {
             dt.cell({ row: tr_index, column: td_index }).data(`Current year - ${tr_index}`)
             table.find(`tr`).eq(tr_index + 1).find(`td`).eq(td_index).removeAttr(`contenteditable`)
         }
     }
+
+    // tbody=",,tax-years-field238,," => 12/31/2022
+    const exists = tbody.filter(function (cell) {
+        return cell.startsWith(`tax-years-field`)
+    })
+    if (1 === exists.length) {
+        td_index = tbody.indexOf(exists[0])
+        const field_id = exists[0].replace(`tax-years-field`, ``)
+        const field = jQuery(`[name="item_meta[${field_id}]"]`)
+        if (field.length > 0) {
+            field.change(redraw)
+            const value = field.val()
+            const current_year = parseInt((new Date()).getFullYear())
+            for (var tr_index = 0; tr_index < table.find(`tbody tr`).length; tr_index++) {
+                const text = `${value}/${current_year - tr_index}`
+                dt.cell({ row: tr_index, column: td_index }).data(text)
+            }
+        }
+    }
+
 }
 
 function rbundle_html_table_special_case_trash(table, dt) {
