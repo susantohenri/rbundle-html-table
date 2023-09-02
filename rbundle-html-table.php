@@ -21,15 +21,17 @@
  */
 
 define('RBUNDLE_HTML_TABLE_ATTRIBUTES', [
-    'id' => 'set_unique_id_here'
-    , 'header' => ',,Tax Years,Subject to BBA,'
+    'id' => 'set_unique_id_here',
+    'thead' => ',,Tax Years,Subject to BBA,',
+    // 'tbody' => ',,`Tax Years`,field1480,' // not mandatory
 ]);
 
 add_shortcode('rbundle-html-table', function ($a_attr) {
     // return json_encode($a_attr);
     foreach (RBUNDLE_HTML_TABLE_ATTRIBUTES as $required_attr => $sample) {
-        if (!isset ($a_attr[$required_attr])) return 'please set table id by setting shortcode attribute ' . $required_attr . '="' . $sample . '"';
+        if (!isset($a_attr[$required_attr])) return "please set table {$required_attr} by setting shortcode attribute " . $required_attr . '="' . $sample . '"';
     }
+    $a_attr['row-count'] = isset($a_attr['row-count']) ? $a_attr['row-count'] : 0;
 
     $a_attr['class'] = 'table rbundle-html-table';
 
@@ -42,7 +44,10 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
     wp_register_script('datatables', 'https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js');
     wp_enqueue_script('datatables');
 
-    wp_register_script('rbundle-html-table', plugin_dir_url(__FILE__) . 'rbundle-html-table.js?token=' . time(), array('jquery'));
+    wp_register_style('rbundle-html-table', plugin_dir_url(__FILE__) . 'rbundle-html-table.css?token=' . time());
+    wp_enqueue_style('rbundle-html-table');
+
+    wp_register_script('rbundle-html-table', plugin_dir_url(__FILE__) . 'rbundle-html-table.js?token=' . time(), ['jquery']);
     wp_enqueue_script('rbundle-html-table');
 
     return "<table {$s_attr}></table>";
