@@ -128,13 +128,6 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table) {
     else if (`trash` === formula) {
         result = `<i class="fa-solid fa-trash"></i>`
         contenteditable = false
-
-        // onclick attached to the td because the trash icon willl just be created in the end of this fn
-        table.find(`tbody tr:eq(${tr}) td:eq(${td})`)
-            .off(`click.trash_${tr}_${td}`)
-            .on(`click.trash_${tr}_${td}`, function () {
-                dt.row(tr).remove().draw(false)
-            })
     }
 
     // tbody=",,current-year-dash-index,," => Current year - 2
@@ -161,4 +154,11 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table) {
 
     dt.cell({ row: tr, column: td }).data(result)
     table.find(`tr`).eq(tr).find(`td`).eq(td).attr(`contenteditable`, contenteditable)
+
+    // trash click event should be binded after icon created in the cell
+    if (`trash` === formula) table.find(`tbody tr:eq(${tr}) td:eq(${td}) i.fa-solid.fa-trash`)
+        .off(`click.trash_${tr}_${td}`)
+        .on(`click.trash_${tr}_${td}`, function () {
+            dt.row(tr).remove().draw(false)
+        })
 }
