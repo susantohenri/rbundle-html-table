@@ -18,7 +18,7 @@ function rbundle_html_table_draw_table(table) {
         title: ``, targets: head_idx
     })
 
-    const dt = new DataTable(`#${table.attr(`id`)}`, dt_options)
+    const dt = new DataTable(table, dt_options)
     if (0 < thead_length) {
         rbundle_html_table_update_thead(thead, dt)
         if (undefined !== table.attr(`tbody`)) {
@@ -130,6 +130,12 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table) {
         contenteditable = false
     }
 
+    // tbody=",,add-row,,"
+    else if (`add-row` === formula) {
+        result = `<input type="button" value="+">`
+        contenteditable = false
+    }
+
     // tbody=",,current-year-dash-index,," => Current year - 2
     else if (`current-year-dash-index` === formula) {
         result = `Current year - ${tr}`
@@ -154,6 +160,11 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table) {
 
     dt.cell({ row: tr, column: td }).data(result)
     table.find(`tr`).eq(tr).find(`td`).eq(td).attr(`contenteditable`, contenteditable)
+    if (contenteditable) table.find(`tr`).eq(tr).find(`td`).eq(td)
+        .off(`blur.contenteditable_${tr}_${td}`)
+        .on(`blur.contenteditable_${tr}_${td}`, function () {
+            rbundle_html_table_content_editable(table, dt, tr)
+        })
 
     // trash click event should be binded after icon created in the cell
     if (`trash` === formula) table.find(`tbody tr:eq(${tr}) td:eq(${td}) i.fa-solid.fa-trash`)
@@ -161,4 +172,45 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table) {
         .on(`click.trash_${tr}_${td}`, function () {
             dt.row(tr).remove().draw(false)
         })
+
+    // add-row button click event should be binded after button created in the cell
+    if (`add-row` === formula) table.find(`tbody tr:eq(${tr}) td:eq(${td}) input[type="button"][value="+"]`)
+        .off(`click.add_row_${tr}_${td}`)
+        .on(`click.add_row_${tr}_${td}`, function () {
+            rbundle_html_table_add_row(table, dt, tr, td)
+        })
+}
+
+function rbundle_html_table_content_editable(table, dt, tr) {
+    tr--
+    var data = dt.row(tr).data()
+    for (var td = 0; td < data.length; td++) {
+        data[td] = table.find(`tbody tr:eq(${tr}) td:eq(${td})`).html()
+    }
+    dt.row(tr).data(data)
+}
+
+function rbundle_html_table_add_row(table, dt, tr, td) {
+
+    var newRows = [
+        [``, ``, ``, ``, ``, ``, ``,]
+    ]
+    dt.rows.add(newRows).draw(false)
+
+    for (var row = dt.data().length - 1; row > tr + 1; row--) {
+        dt.row(tr).data(dt.row(tr-1).data())
+    }
+
+
+
+
+    // var rowCount = dt.data().length - 1,
+    //     insertedRow = dt.row(rowCount).data(),
+    //     tempRow;
+
+    // for (var i = rowCount; i > tr; i--) {
+    //     tempRow = dt.row(i - 1).data();
+    //     dt.row(i).data(tempRow);
+    //     dt.row(i - 1).data(insertedRow);
+    // }
 }
