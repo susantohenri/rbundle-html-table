@@ -22,9 +22,9 @@
 
 define('RBUNDLE_HTML_TABLE_ATTRIBUTES', [
     /* mandatory fields */
-    'id' => 'set_unique_id_here',
     'thead' => ',,`Tax Years`,`Subject to BBA`,',
     /* not mandatory fields: */
+    // 'id' => 'set_unique_id_here',
     // 'row-count' = 3,
     // 'tbody' => ',,`Tax Years`,field1480,',
 ]);
