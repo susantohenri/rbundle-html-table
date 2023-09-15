@@ -197,8 +197,12 @@ function rbundle_html_table_content_editable(table, dt, tr) {
 
 function rbundle_html_table_add_row(table, dt, tr) {
     var data = dt.rows().data()
-    console.log(tr, data)
     const thead_length = table.attr(`thead`).split(`,`).length
     const tbody = table.attr(`tbody`).split(`,`)
+
+    const row_to_add = []
+    for (var th = 0; th < thead_length; th++) row_to_add.push(`&nbsp;`)
+    data.splice(tr + 1, 0, row_to_add);
+
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
 }
