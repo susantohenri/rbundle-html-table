@@ -1,3 +1,25 @@
 table.rbundle-html-table tbody td {
     border: 0.5px solid black;
 }
+
+table.rbundle-html-table tbody td:empty {
+    border: 0.5px solid black;
+    background-color: red;
+    opacity: 0.36;
+}
+
+table.rbundle-html-table tbody td [value="+"] {
+    background-color: #134BCC;
+    color: white;
+    font-size: 16px;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+}
+
+table.rbundle-html-table tbody td:has(> [value="+"]) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}

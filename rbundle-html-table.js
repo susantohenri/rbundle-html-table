@@ -84,7 +84,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
 
     for (var tr = 0; tr < row_count; tr++) {
         for (var td = 0; td < thead_length; td++) {
-            const predefined = data ? data[tr][td] : ``
+            const predefined = data ? data[tr][td] : null
             if (undefined !== tbody[td]) rbundle_html_table_update_tbody_cell(tr, td, tbody[td], dt, table, predefined)
         }
     }
@@ -107,7 +107,7 @@ function rbundle_html_table_custom_row_count(row_count, redraw_body) {
 }
 
 function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined) {
-    var result = predefined ? predefined : ``
+    var result = ``
     var contenteditable = true
     formula = formula.trim()
 
@@ -163,7 +163,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         }
     }
 
-    dt.cell({ row: tr, column: td }).data(result)
+    dt.cell({ row: tr, column: td }).data(null === predefined ? result : predefined)
     table.find(`tr`).eq(tr + 1).find(`td`).eq(td).attr(`contenteditable`, contenteditable)
     if (contenteditable) table.find(`tr`).eq(tr + 1).find(`td`).eq(td)
         .off(`blur.contenteditable_${tr}_${td}`)
@@ -201,7 +201,11 @@ function rbundle_html_table_add_row(table, dt, tr) {
     const tbody = table.attr(`tbody`).split(`,`)
 
     const row_to_add = []
-    for (var th = 0; th < thead_length; th++) row_to_add.push(`&nbsp;`)
+    for (var th = 0; th < thead_length; th++) {
+        var new_cell = ``
+        if ([`add-row`, `trash`].indexOf(tbody[th]) > -1) new_cell = null// fallback to tbody formula
+        row_to_add.push(new_cell)
+    }
     data.splice(tr + 1, 0, row_to_add);
 
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
