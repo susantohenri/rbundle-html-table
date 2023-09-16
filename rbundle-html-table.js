@@ -208,5 +208,16 @@ function rbundle_html_table_add_row(table, dt, tr) {
     }
     data.splice(tr + 1, 0, row_to_add);
 
+    // special case: year index
+    const year_index_td = tbody.indexOf(`current-year-dash-index`)
+    data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
+
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
+}
+
+function rbundle_html_table_add_row_case_year_index(year_index_td, data) {
+    for (var tr = 0; tr < data.length; tr++) {
+        data[tr][year_index_td] = `Current year - ${tr}`
+    }
+    return data
 }
