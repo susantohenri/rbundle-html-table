@@ -70,7 +70,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
             rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
         })
     }
-    if (1 > row_count) return false
+    // if (1 > row_count) return false
 
     var body = []
     for (var tr = 0; tr < row_count; tr++) {
@@ -175,7 +175,8 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     if (`trash` === formula) table.find(`tbody tr:eq(${tr}) td:eq(${td}) i.fa-solid.fa-trash`)
         .off(`click.trash_${tr}_${td}`)
         .on(`click.trash_${tr}_${td}`, function () {
-            dt.row(tr).remove().draw(false)
+            // dt.row(tr).remove().draw(false)
+            rbundle_html_table_delete_row(table, dt, tr)
         })
 
     // add-row button click event should be binded after button created in the cell
@@ -193,6 +194,15 @@ function rbundle_html_table_content_editable(table, dt, tr) {
         data[td] = table.find(`tbody tr:eq(${tr}) td:eq(${td})`).html()
     }
     dt.row(tr).data(data)
+}
+
+function rbundle_html_table_delete_row(table, dt, tr) {
+    var data = dt.rows().data()
+    const thead_length = table.attr(`thead`).split(`,`).length
+    const tbody = table.attr(`tbody`).split(`,`)
+    if (tr > 0) data.splice(tr, 1)
+    else data = []
+    rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
 }
 
 function rbundle_html_table_add_row(table, dt, tr) {
