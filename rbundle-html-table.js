@@ -70,7 +70,6 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
             rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
         })
     }
-    // if (1 > row_count) return false
 
     var body = []
     for (var tr = 0; tr < row_count; tr++) {
@@ -164,18 +163,17 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     }
 
     dt.cell({ row: tr, column: td }).data(null === predefined ? result : predefined)
-    table.find(`tr`).eq(tr + 1).find(`td`).eq(td).attr(`contenteditable`, contenteditable)
-    if (contenteditable) table.find(`tr`).eq(tr + 1).find(`td`).eq(td)
+    table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td).attr(`contenteditable`, contenteditable)
+    if (contenteditable) table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
         .off(`blur.contenteditable_${tr}_${td}`)
         .on(`blur.contenteditable_${tr}_${td}`, function () {
-            rbundle_html_table_content_editable(table, dt, tr + 1)
+            rbundle_html_table_content_editable(table, dt, tr)
         })
 
     // trash click event should be binded after icon created in the cell
     if (`trash` === formula) table.find(`tbody tr:eq(${tr}) td:eq(${td}) i.fa-solid.fa-trash`)
         .off(`click.trash_${tr}_${td}`)
         .on(`click.trash_${tr}_${td}`, function () {
-            // dt.row(tr).remove().draw(false)
             rbundle_html_table_delete_row(table, dt, tr)
         })
 
@@ -188,20 +186,23 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
 }
 
 function rbundle_html_table_content_editable(table, dt, tr) {
-    tr--
     var data = dt.row(tr).data()
     for (var td = 0; td < data.length; td++) {
         data[td] = table.find(`tbody tr:eq(${tr}) td:eq(${td})`).html()
     }
-    dt.row(tr).data(data)
+    // dt.row(tr).data(data)
 }
 
 function rbundle_html_table_delete_row(table, dt, tr) {
     var data = dt.rows().data()
     const thead_length = table.attr(`thead`).split(`,`).length
     const tbody = table.attr(`tbody`).split(`,`)
-    if (tr > 0) data.splice(tr, 1)
-    else data = []
+    data.splice(tr, 1)
+
+    // special case: year index
+    const year_index_td = tbody.indexOf(`current-year-dash-index`)
+    data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
+
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
 }
 
