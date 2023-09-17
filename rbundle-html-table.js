@@ -20,17 +20,18 @@ function rbundle_html_table_draw_table(table) {
 
     const dt = new DataTable(table, dt_options)
     if (0 < thead_length) {
-        rbundle_html_table_update_thead(thead, dt)
+        rbundle_html_table_update_thead(thead, dt, table)
         if (undefined !== table.attr(`tbody`)) {
             rbundle_html_table_update_tbody(thead_length, table.attr(`tbody`).split(`,`), dt, table, null)
         }
     }
 }
 
-function rbundle_html_table_update_thead(thead, dt) {
+function rbundle_html_table_update_thead(thead, dt, table) {
     for (var th = 0; th < thead.length; th++) {
         rbundle_html_table_update_thead_cell(th, thead[th], dt)
     }
+    rbundle_html_table_update_thead_special_case_csv(table)
 }
 
 function rbundle_html_table_update_thead_cell(th, formula, dt) {
@@ -87,6 +88,8 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
             if (undefined !== tbody[td]) rbundle_html_table_update_tbody_cell(tr, td, tbody[td], dt, table, predefined)
         }
     }
+
+    rbundle_html_table_update_tbody_special_case_csv(table)
 }
 
 function rbundle_html_table_custom_row_count(row_count, redraw_body) {
@@ -231,4 +234,29 @@ function rbundle_html_table_add_row_case_year_index(year_index_td, data) {
         data[tr][year_index_td] = `Current year - ${tr}`
     }
     return data
+}
+
+function rbundle_html_table_update_thead_special_case_csv(table) {
+    var thead_data_csv = table.attr(`thead-data-csv`)
+    if (!thead_data_csv) return false
+    thead_data_csv = thead_data_csv.split(`,`)
+    for (var th = 0; th < thead_data_csv.length; th++) {
+        table.find(`thead`).find(`tr`).find(`th`).eq(th).attr(`data-csv`, thead_data_csv[th])
+    }
+}
+
+function rbundle_html_table_update_tbody_special_case_csv(table) {
+    var tbody_data_csv = table.attr(`tbody-data-csv`)
+    if (!tbody_data_csv) return false
+    tbody_data_csv = tbody_data_csv.split(`,`)
+    for (var td = 0; td < tbody_data_csv.length; td++) {
+        const cell = tbody_data_csv[td]
+        if (`` === cell) continue
+        const aplhabet = cell.match(/[a-zA-Z]/g).join(``)
+        var number = cell.match(/[0-9]/g).join(``)
+        for (var tr = 0; tr < table.find(`tbody`).find(`tr`).length; tr++) {
+            table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td).attr(`data-csv`, `${aplhabet}${number}`)
+            number++
+        }
+    }
 }

@@ -23,10 +23,14 @@
 define('RBUNDLE_HTML_TABLE_ATTRIBUTES', [
     /* mandatory fields */
     'thead' => ',,`Tax Years`,`Subject to BBA`,',
-    /* not mandatory fields: */
-    // 'id' => 'set_unique_id_here',
-    // 'row-count' = 3,
-    // 'tbody' => ',,`Tax Years`,field1480,',
+    /*
+        not mandatory fields:
+        'id' => 'set_unique_id_here',
+        'row-count' => 3,
+        'tbody' => ',,`Tax Years`,field1480,',
+        'thead-data-csv' => ',,H38,I38,J38,K38',
+        'tbody-data-csv' => ',,G39,H39,I39,J39',
+     */
 ]);
 
 add_shortcode('rbundle-html-table', function ($a_attr) {
