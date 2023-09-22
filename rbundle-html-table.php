@@ -59,3 +59,95 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
 
     return "<table {$s_attr}></table>";
 });
+
+add_action('admin_menu', function () {
+    add_menu_page('Table Generator', 'Table Generator', 'administrator', __FILE__, function () {
+?>
+        <div class="wrap">
+            <h1>Rbundle HTML Table</h1>
+            <div id="dashboard-widgets-wrap">
+                <div id="dashboard-widgets" class="metabox-holder">
+                    <div class="">
+                        <div class="meta-box-sortables">
+                            <div id="dashboard_quick_press" class="postbox ">
+                                <div class="postbox-header">
+                                    <h2 class="hndle ui-sortable-handle">
+                                        <span>Rbundle HTML Table Shortcode Generator</span>
+                                    </h2>
+                                </div>
+                                <div class="inside">
+                                    <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+                                        <hr>
+                                        <p><b>Dimensions</b></p>
+
+                                        <p>
+                                            <b>Number of Columns?</b>
+                                            <br><input type="radio"> Static
+                                            <br><input type="radio"> Dynamic
+                                        </p>
+
+                                        <p>
+                                            <b>User Able to Add Columns?</b>
+                                            <br><input type="radio"> No
+                                            <br><input type="radio"> Yes
+                                            <br><small>and delete those added columns.</small>
+                                        </p>
+
+                                        <p>
+                                            <b>Number of Rows?</b>
+                                            <br><input type="radio"> Static
+                                            <br><input type="radio"> Dynamic
+                                        </p>
+
+                                        <p>
+                                            <b>User Able to Add Rows?</b>
+                                            <br><input type="radio"> No
+                                            <br><input type="radio"> Yes
+                                            <br><small>and delete those added columns.</small>
+                                        </p>
+
+                                        <p>
+                                            <b>User Able to Delete Default Rows?</b>
+                                            <br><input type="radio"> No
+                                            <br><input type="radio"> Yes
+                                        </p>
+
+                                        <p>
+                                            <b>Value Library</b>
+                                            <br>
+                                            <textarea style="width: 100%;" rows="5">
+row-count
+
+field###
+
+tax-years-field###
+
+current-year-dash-index
+
+date-picker
+                                            </textarea>
+                                        </p>
+
+                                        <p>
+                                            <b>Table ID</b>
+                                            <br><input type="text" placeholder="Generated on submission, not changed by update" style="width: 100%;">
+                                        </p>
+
+                                        <hr>
+                                        <p><b>Table CSS</b></p>
+
+                                        <hr>
+                                        <p>
+                                            <b>Please Copy-Paste Following Short Code Generator Result:</b>
+                                            <br>[rbundle-html-table thead=",,`Tax Years`,`Federal Income Tax Form`,`Legal Entity`,`Subject to BBA`," id="t3" row-count="current-year-minus-field840" tbody=",current-year-dash-index,tax-years-field238,field237,field246, N/A,trash"]
+                                        </p>
+                                    </form </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <?php
+    }, '');
+});
