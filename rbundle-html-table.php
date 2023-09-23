@@ -62,6 +62,8 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
 
 add_action('admin_menu', function () {
     add_menu_page('Table Generator', 'Table Generator', 'administrator', __FILE__, function () {
+        wp_register_script('rbundle-html-table-generator', plugin_dir_url(__FILE__) . 'rbundle-html-table-generator.js?token=' . time(), ['jquery']);
+        wp_enqueue_script('rbundle-html-table-generator');
 ?>
         <div class="wrap">
             <h1>Rbundle HTML Table</h1>
@@ -80,43 +82,54 @@ add_action('admin_menu', function () {
                                         <hr>
                                         <p><b>Dimensions</b></p>
 
-                                        <p>
-                                            <b>Number of Columns?</b>
-                                            <br><input type="radio"> Static
-                                            <br><input type="radio"> Dynamic
+                                        <p class="number-of-columns">
+                                            <b class="step-1">1. Number of Columns?*</b>
+                                            <br class="step-1"><input name="number of columns" value="static" type="radio" class="step-1"> Static
+                                            <br class="step-1"><input name="number of columns" value="dynamic" disabled type="radio" class="step-1"> dynamic
+                                            <br class="step-1"><small class="step-1">
+                                                <b>Available Value Library:</b> field###
+                                            </small>
+                                            <br class="step-2"><input type="text" name="value number of columns" class="step-2">
+                                            <br class="step-2">
                                         </p>
 
                                         <p>
-                                            <b>User Able to Add Columns?</b>
-                                            <br><input type="radio"> No
-                                            <br><input type="radio"> Yes
+                                            <b>2. User Able to Add Columns?</b>
+                                            <br><input name="user_able_to_add_columns" disabled type="radio"> No
+                                            <br><input name="user_able_to_add_columns" disabled type="radio"> Yes
                                             <br><small>and delete those added columns.</small>
                                         </p>
 
-                                        <p>
-                                            <b>Number of Rows?</b>
-                                            <br><input type="radio"> Static
-                                            <br><input type="radio"> Dynamic
+                                        <p class="number-of-rows">
+                                            <b class="step-1">3. Number of Rows?</b class="step-1">
+                                            <br class="step-1"><input name="number of rows" value="static" type="radio" class="step-1"> Static
+                                            <br class="step-1"><input name="number of rows" value="dynamic" type="radio" class="step-1"> dynamic
+                                            <br class="step-1">
+                                            <small class="step-1">
+                                                <b>Available Value Library: field###, current-year-dash-index, tax-years-field###</b>
+                                            </small>
+                                            <br class="step-2"><input type="text" name="value number of rows" class="step-2">
+                                            <br class="step-1">
                                         </p>
 
-                                        <p>
-                                            <b>User Able to Add Rows?</b>
-                                            <br><input type="radio"> No
-                                            <br><input type="radio"> Yes
-                                            <br><small>and delete those added columns.</small>
+                                        <p class="user-able-add-rows">
+                                            <b class="step-1">4. User Able to Add Rows?</b class="step-1">
+                                            <br class="step-1"><input name="user_able_to_add_rows" type="radio" checked value="no" class="step-1"> No
+                                            <br class="step-1"><input name="user_able_to_add_rows" type="radio" value="yes" class="step-1"> Yes
+                                            <br class="step-1"><small class="step-1">and delete those added columns.</small class="step-1">
                                         </p>
 
-                                        <p>
-                                            <b>User Able to Delete Default Rows?</b>
-                                            <br><input type="radio"> No
-                                            <br><input type="radio"> Yes
+                                        <p class="user-able-delete-default-rows">
+                                            <b class="step-1">5. User Able to Delete Default Rows?</b class="step-1">
+                                            <br class="step-1"><input name="user_able_to_delete_default_rows" checked type="radio" value="no" class="step-1"> No
+                                            <br class="step-1"><input name="user_able_to_delete_default_rows" type="radio" value="yes" class="step-1"> Yes
                                         </p>
 
                                         <p>
                                             <b>Value Library</b>
                                             <br>
-                                            <textarea style="width: 100%;" rows="5">
-row-count
+                                            <textarea style="width: 100%;" rows="5" disabled>
+current-year-minus-field###
 
 field###
 
@@ -129,8 +142,8 @@ date-picker
                                         </p>
 
                                         <p>
-                                            <b>Table ID</b>
-                                            <br><input type="text" placeholder="Generated on submission, not changed by update" style="width: 100%;">
+                                            <b>6. Table ID</b>
+                                            <br><input type="text" class="table-id" placeholder="Generated on submission, not changed by update" style="width: 100%;">
                                         </p>
 
                                         <hr>
@@ -139,7 +152,8 @@ date-picker
                                         <hr>
                                         <p>
                                             <b>Please Copy-Paste Following Short Code Generator Result:</b>
-                                            <br>[rbundle-html-table thead=",,`Tax Years`,`Federal Income Tax Form`,`Legal Entity`,`Subject to BBA`," id="t3" row-count="current-year-minus-field840" tbody=",current-year-dash-index,tax-years-field238,field237,field246, N/A,trash"]
+                                            <br>
+                                        <p id="rbundle_html_table_generated_shortcode"></p>
                                         </p>
                                     </form </div>
                                 </div>
