@@ -11,13 +11,15 @@ no_of_cols.find(`[type="text"].step-2`).keyup(function () {
     if (`static` !== no_of_cols.find(`[type="radio"]:checked`).val()) return false
     const val = parseInt(jQuery(this).val())
     if (0 > val) return false
-    no_of_cols.find(`[type="text"].step-3`).remove()
+    no_of_cols.find(`.step-3`).remove()
     for (var head = 0; head < val; head++) {
         no_of_cols.append(`<input class="step-3" style="margin: 5px 5px 0 0" type="text" name="header[]" placeholder="Header ${head + 1}">`)
-        no_of_rows.append(`<input class="step-3" style="margin: 5px 5px 0 0" type="text" name="body[]" placeholder="Column ${head + 1}">`)
+    }
+    no_of_cols.append(`<br class="step-3">`)
+    for (var head = 0; head < val; head++) {
+        no_of_cols.append(`<input class="step-3" style="margin: 5px 5px 0 0" type="text" name="body[]" placeholder="Body ${head + 1}">`)
     }
     no_of_cols.find(`[type="text"].step-3`).keyup(rbundle_html_table_generate_shortcode)
-    no_of_rows.find(`[type="text"].step-3`).keyup(rbundle_html_table_generate_shortcode)
     rbundle_html_table_generate_shortcode()
 })
 
@@ -37,13 +39,13 @@ function rbundle_html_table_generate_shortcode() {
 
     var athead = []
     var atbody = []
-    for (var col = 0; col < jQuery(`.number-of-columns`).find(`[type="text"].step-3`).length; col++) {
+    for (var col = 0; col < jQuery(`.number-of-columns`).find(`[name="header[]"]`).length; col++) {
         var formula = jQuery(`.number-of-columns`).find(`[type="text"].step-3`).eq(col).val()
         if (formula.startsWith(`field`)) { }
         else formula = '`' + formula + '`'
         athead.push(formula)
 
-        formula = jQuery(`.number-of-rows`).find(`[type="text"].step-3`).eq(col).val()
+        formula = jQuery(`.number-of-columns`).find(`[name="body[]"]`).eq(col).val()
         if (formula.startsWith(`field`)) { }
         else if (`current-year-dash-index` === formula) { }
         else if (formula.startsWith(`tax-years-field`)) { }

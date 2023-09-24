@@ -86,10 +86,14 @@ add_action('admin_menu', function () {
                                             <b class="step-1">1. Number of Columns?*</b>
                                             <br class="step-1"><input name="number of columns" value="static" type="radio" class="step-1"> Static
                                             <br class="step-1"><input name="number of columns" value="dynamic" disabled type="radio" class="step-1"> dynamic
-                                            <br class="step-1"><small class="step-1">
-                                                <b>Available Value Library:</b> field###
-                                            </small>
                                             <br class="step-2"><input type="text" name="value number of columns" class="step-2">
+                                            <br class="step-2"><small class="step-2">
+                                                <b>Available Value Library for Header:</b> field###
+                                            </small>
+                                            <br class="step-2">
+                                            <small class="step-2">
+                                                <b>Available Value Library for Body: field###, current-year-dash-index, tax-years-field###</b>
+                                            </small>
                                             <br class="step-2">
                                         </p>
 
@@ -104,12 +108,7 @@ add_action('admin_menu', function () {
                                             <b class="step-1">3. Number of Rows?</b class="step-1">
                                             <br class="step-1"><input name="number of rows" value="static" type="radio" class="step-1"> Static
                                             <br class="step-1"><input name="number of rows" value="dynamic" type="radio" class="step-1"> dynamic
-                                            <br class="step-1">
-                                            <small class="step-1">
-                                                <b>Available Value Library: field###, current-year-dash-index, tax-years-field###</b>
-                                            </small>
                                             <br class="step-2"><input type="text" name="value number of rows" class="step-2">
-                                            <br class="step-1">
                                         </p>
 
                                         <p class="user-able-add-rows">
