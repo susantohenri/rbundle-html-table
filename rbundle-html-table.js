@@ -25,6 +25,7 @@ function rbundle_html_table_draw_table(table) {
             rbundle_html_table_update_tbody(thead_length, table.attr(`tbody`).split(`,`), dt, table, null)
         }
     }
+    rbundle_html_table_case_delete_default_row(table, null)
 }
 
 function rbundle_html_table_update_thead(thead, dt, table) {
@@ -213,6 +214,7 @@ function rbundle_html_table_add_row(table, dt, tr) {
     var data = dt.rows().data()
     const thead_length = table.attr(`thead`).split(`,`).length
     const tbody = table.attr(`tbody`).split(`,`)
+    const new_row_index = tr + 1
 
     const row_to_add = []
     for (var th = 0; th < thead_length; th++) {
@@ -220,13 +222,14 @@ function rbundle_html_table_add_row(table, dt, tr) {
         if ([`add-row`, `trash`].indexOf(tbody[th]) > -1) new_cell = null// fallback to tbody formula
         row_to_add.push(new_cell)
     }
-    data.splice(tr + 1, 0, row_to_add);
+    data.splice(new_row_index + 1, 0, row_to_add);
 
     // special case: year index
     const year_index_td = tbody.indexOf(`current-year-dash-index`)
     data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
 
-    rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
+    rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
+    rbundle_html_table_case_delete_default_row(table, new_row_index)
 }
 
 function rbundle_html_table_add_row_case_year_index(year_index_td, data) {
@@ -259,4 +262,9 @@ function rbundle_html_table_update_tbody_special_case_csv(table) {
             number++
         }
     }
+}
+
+function rbundle_html_table_case_delete_default_row(table, tr) {
+    table.find(`.fa-solid.fa-trash`).hide()
+    if (null !== tr) table.find(`tbody tr:eq(${tr}) .fa-solid.fa-trash`).show()
 }
