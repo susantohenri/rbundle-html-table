@@ -93,7 +93,7 @@ add_action('admin_menu', function () {
                                         <p class="number-of-columns">
                                             <b class="step-1">2. Number of Columns?*</b>
                                             <br class="step-1"><input name="number of columns" value="static" type="radio" class="step-1"> Static
-                                            <br class="step-1"><input name="number of columns" value="dynamic" disabled type="radio" class="step-1"> dynamic
+                                            <br class="step-1"><input name="number of columns" value="dynamic" disabled type="radio" class="step-1"> Dynamic
                                             <br class="step-2"><input type="text" name="value number of columns" class="step-2">
                                             <br class="step-2"><small class="step-2">
                                                 <b>Available Value Library for Header:</b> field###
@@ -115,8 +115,13 @@ add_action('admin_menu', function () {
                                         <p class="number-of-rows">
                                             <b class="step-1">4. Number of Rows?</b class="step-1">
                                             <br class="step-1"><input name="number of rows" value="static" type="radio" class="step-1"> Static
-                                            <br class="step-1"><input name="number of rows" value="dynamic" type="radio" class="step-1"> dynamic
+                                            <br class="step-1"><input name="number of rows" value="dynamic" type="radio" class="step-1"> Dynamic
                                             <br class="step-2"><input type="text" name="value number of rows" class="step-2">
+                                            <br class="step-2">
+                                            <small class="step-2">
+                                                <b>Available Value Library for Dynamic: current-year-minus-field###</b>
+                                            </small>
+
                                         </p>
 
                                         <p class="user-able-add-rows">
