@@ -25,6 +25,7 @@ function rbundle_html_table_draw_table(table) {
             rbundle_html_table_update_tbody(thead_length, table.attr(`tbody`).split(`,`), dt, table, null)
         }
     }
+    if (table.attr('restrict-delete-default-row')) table.find(`tbody tr`).addClass(`default-row`)
 }
 
 function rbundle_html_table_update_thead(thead, dt, table) {
@@ -200,19 +201,30 @@ function rbundle_html_table_delete_row(table, dt, tr) {
     var data = dt.rows().data()
     const thead_length = table.attr(`thead`).split(`,`).length
     const tbody = table.attr(`tbody`).split(`,`)
+    var default_row_indexes = table.find(`tbody tr`).map(function () {
+        return jQuery(this).is(`.default-row`)
+    })
+
     data.splice(tr, 1)
+    default_row_indexes.splice(tr, 1)
 
     // special case: year index
     const year_index_td = tbody.indexOf(`current-year-dash-index`)
     data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
 
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
+    default_row_indexes.map((index, value, array) => {
+        if (true === value) table.find(`tbody tr`).eq(index).addClass(`default-row`)
+    })
 }
 
 function rbundle_html_table_add_row(table, dt, tr) {
     var data = dt.rows().data()
     const thead_length = table.attr(`thead`).split(`,`).length
     const tbody = table.attr(`tbody`).split(`,`)
+    var default_row_indexes = table.find(`tbody tr`).map(function () {
+        return jQuery(this).is(`.default-row`)
+    })
 
     const row_to_add = []
     for (var th = 0; th < thead_length; th++) {
@@ -220,13 +232,17 @@ function rbundle_html_table_add_row(table, dt, tr) {
         if ([`add-row`, `trash`].indexOf(tbody[th]) > -1) new_cell = null// fallback to tbody formula
         row_to_add.push(new_cell)
     }
-    data.splice(tr + 1, 0, row_to_add);
+    data.splice(tr + 1, 0, row_to_add)
+    default_row_indexes.splice(tr + 1, 0, false)
 
     // special case: year index
     const year_index_td = tbody.indexOf(`current-year-dash-index`)
     data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
 
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
+    default_row_indexes.map((index, value, array) => {
+        if (true === value) table.find(`tbody tr`).eq(index).addClass(`default-row`)
+    })
 }
 
 function rbundle_html_table_add_row_case_year_index(year_index_td, data) {

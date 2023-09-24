@@ -30,6 +30,7 @@ define('RBUNDLE_HTML_TABLE_ATTRIBUTES', [
         'tbody' => ',,`Tax Years`,field1480,',
         'thead-data-csv' => ',,H38,I38,J38,K38',
         'tbody-data-csv' => ',,G39,H39,I39,J39',
+        'restrict-delete-default-row' => 'true',
      */
 ]);
 

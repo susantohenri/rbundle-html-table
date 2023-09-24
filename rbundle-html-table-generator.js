@@ -62,6 +62,9 @@ function rbundle_html_table_generate_shortcode() {
         athead.push(``)
     }
 
+    if (`no` === jQuery(`[name="user_able_to_delete_default_rows"]:checked`).val()) {
+        rbundle_html_table_generated_shortcode.splice(1, 0, ` restrict-delete-default-row="true"`)
+    }
     const table_id = jQuery(`.table-id`).val()
 
     if (0 < athead.length) {

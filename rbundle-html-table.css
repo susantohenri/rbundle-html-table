@@ -23,3 +23,7 @@ table.rbundle-html-table tbody td:has(> [value="+"]) {
     align-items: center;
     padding: 10px;
 }
+
+table.rbundle-html-table tbody tr.default-row i.fa-solid.fa-trash {
+    display: none;
+}
