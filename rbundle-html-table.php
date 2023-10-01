@@ -58,6 +58,27 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
     wp_register_script('rbundle-html-table', plugin_dir_url(__FILE__) . 'rbundle-html-table.js?token=' . time(), ['jquery']);
     wp_enqueue_script('rbundle-html-table');
 
+    $load_datepicker = false;
+    if (isset($a_attr['thead'])) {
+        $thead_datepicker = array_filter(explode(',', $a_attr['thead']), function ($th) {
+            return strpos($th, 'date-picker') > -1;
+        });
+        $load_datepicker = $load_datepicker || count($thead_datepicker) > 0;
+    }
+    if (isset($a_attr['tbody'])) {
+        $tbody_datepicker = array_filter(explode(',', $a_attr['tbody']), function ($td) {
+            return strpos($td, 'date-picker') > -1;
+        });
+        $load_datepicker = $load_datepicker || count($tbody_datepicker) > 0;
+    }
+    if ($load_datepicker) {
+        wp_register_style('bootstrap-date-picker', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css');
+        wp_enqueue_style('bootstrap-date-picker');
+
+        wp_register_script('bootstrap-date-picker', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js');
+        wp_enqueue_script('bootstrap-date-picker');
+    }
+
     return "<table {$s_attr}></table>";
 });
 

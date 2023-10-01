@@ -30,13 +30,15 @@ function rbundle_html_table_draw_table(table) {
 
 function rbundle_html_table_update_thead(thead, dt, table) {
     for (var th = 0; th < thead.length; th++) {
-        rbundle_html_table_update_thead_cell(th, thead[th], dt)
+        rbundle_html_table_update_thead_cell(th, thead[th], dt, table)
     }
     rbundle_html_table_update_thead_special_case_csv(table)
 }
 
-function rbundle_html_table_update_thead_cell(th, formula, dt) {
+function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
     var result = ``
+    const is_datepicker = formula.indexOf(`date-picker`) > -1
+    if (is_datepicker) formula = formula.replace(`date-picker`, ``).trim()
 
     // if no attribute tbody
     if (undefined === formula) return false
@@ -55,12 +57,13 @@ function rbundle_html_table_update_thead_cell(th, formula, dt) {
             field
                 .off(`change.rbundle_html_table_update_thead_cell`)
                 .on(`change.rbundle_html_table_update_thead_cell`, function () {
-                    rbundle_html_table_update_thead_cell(th, formula, dt)
+                    rbundle_html_table_update_thead_cell(th, formula, dt, table)
                 })
         }
     }
 
     jQuery(dt.column(th).header()).text(result)
+    if (is_datepicker) rbundle_html_table_update_thead_special_case_datepicker(table, th)
 }
 
 function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
@@ -112,6 +115,8 @@ function rbundle_html_table_custom_row_count(row_count, redraw_body) {
 function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined) {
     var result = ``
     var contenteditable = true
+    const is_datepicker = formula.indexOf(`date-picker`) > -1
+    if (is_datepicker) formula = formula.replace(`date-picker`, ``)
     formula = formula.trim()
 
     // tbody=",,`N/A`, `153`,,"
@@ -187,6 +192,8 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         .on(`click.add_row_${tr}_${td}`, function () {
             rbundle_html_table_add_row(table, dt, tr)
         })
+
+    if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td)
 }
 
 function rbundle_html_table_content_editable(table, dt, tr) {
@@ -275,4 +282,28 @@ function rbundle_html_table_update_tbody_special_case_csv(table) {
             number++
         }
     }
+}
+
+function rbundle_html_table_update_thead_special_case_datepicker(table, col) {
+    const target = table.find(`thead`).find(`tr`).find(`th`).eq(col)
+    target.click(() => {
+        target.off(`click`).html(`<input type="text" style="display: none">`)
+            .datepicker({ autoclose: true })
+            .datepicker(`show`)
+            .change(() => { target.html(target.find(`input`).val()) })
+    })
+}
+
+function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) {
+    const target = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
+    target.focus(() => {
+        const input = target.html(`<input type="text" style="display: none">`)
+        input.datepicker(`destroy`)
+        input.datepicker({ autoclose: true })
+        input.datepicker(`show`)
+        input.datepicker().on(`change`, function (e) {
+            target.html(e.target.value)
+            target.trigger(`blur.contenteditable_${tr}_${td}`)
+        })
+    })
 }
