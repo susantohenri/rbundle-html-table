@@ -22,12 +22,14 @@
 
 define('RBUNDLE_HTML_TABLE_ATTRIBUTES', [
     /* mandatory fields */
-    'thead' => ',,`Tax Years`,`Subject to BBA`,',
+    'thead' => ',,`Tax Years`,`Subject to BBA` date-picker,',
     /*
         not mandatory fields:
         'id' => 'set_unique_id_here',
         'row-count' => 3,
-        'tbody' => ',,`Tax Years`,field1480,',
+        'row-count' => current-year-minus-field840,
+        'row-count' => field4388+field4388-field4389,
+        'tbody' => ',,`Tax Years`,field1480 datepicker,',
         'thead-data-csv' => ',,H38,I38,J38,K38',
         'tbody-data-csv' => ',,G39,H39,I39,J39',
         'restrict-delete-default-row' => 'true',
@@ -40,6 +42,16 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
         if (!isset($a_attr[$required_attr])) return "please set table {$required_attr} by setting shortcode attribute " . $required_attr . '="' . $sample . '"';
     }
     $a_attr['row-count'] = isset($a_attr['row-count']) ? $a_attr['row-count'] : 0;
+
+    // validate row-count operator on multiple fields
+    if ('field' === substr($a_attr['row-count'], 0, 5)) {
+        $split_fields = explode('field', $a_attr['row-count']);
+        foreach ($split_fields as $index => $field_id) {
+            if (!in_array($index, [0, count($split_fields) - 1]) && !in_array(substr($field_id, -1), ['+', '-', '*'])) {
+                return 'Invalid row-count ' . $a_attr['row-count'];
+            }
+        }
+    }
 
     $a_attr['class'] = 'table rbundle-html-table';
 

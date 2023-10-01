@@ -109,6 +109,33 @@ function rbundle_html_table_custom_row_count(row_count, redraw_body) {
                 .on(`change.rbundle_html_table_custom_row_count`, redraw_body)
         }
         return result
+    }
+    /* row-count="field4163" */
+    /* row-count="field4163+field4165-field3345" */
+    if (row_count.startsWith(`field`)) {
+        var result = 0;
+        var operator = `+`
+        row_count.split(`field`).forEach(function (field_id, index, arr) {
+            if (0 === index) return;
+            const last_char = field_id.slice(-1)
+            if (index !== arr.length - 1) field_id = field_id.slice(0, -1)
+
+            const field = jQuery(`[name="item_meta[${field_id}]"]`)
+            if (field.length > 0) {
+                const val = `` === field.val() ? 0 : parseInt(field.val())
+                switch (operator) {
+                    case `+`: result += val; break
+                    case `-`: result -= val; break
+                    case `*`: result *= val; break
+                }
+                field
+                    .off(`change.rbundle_html_table_custom_row_count`)
+                    .on(`change.rbundle_html_table_custom_row_count`, redraw_body)
+            }
+
+            if ([`+`, `-`, `*`].indexOf(last_char) > -1) operator = last_char
+        })
+        return result
     } else return row_count
 }
 
