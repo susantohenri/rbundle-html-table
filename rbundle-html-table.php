@@ -29,7 +29,7 @@ define('RBUNDLE_HTML_TABLE_ATTRIBUTES', [
         'row-count' => 3,
         'row-count' => current-year-minus-field840,
         'row-count' => field4388+field4388-field4389,
-        'tbody' => ',,`Tax Years`,field1480 date-picker,',
+        'tbody' => ',,`Tax Years`,field1480 date-picker,dropdown:option-1|option 2|option3,',
         'thead-data-csv' => ',,H38,I38,J38,K38',
         'tbody-data-csv' => ',,G39,H39,I39,J39',
         'restrict-delete-default-row' => 'true',
@@ -129,11 +129,11 @@ add_action('admin_menu', function () {
                                             <br class="step-1"><input name="number of columns" value="dynamic" disabled type="radio" class="step-1"> Dynamic
                                             <br class="step-2"><input type="text" name="value number of columns" class="step-2">
                                             <br class="step-2"><small class="step-2">
-                                                <b>Available Value Library for Header:</b> field###, date-picker
+                                                <b>Available Value Library for Header:</b> field###, field### date-picker
                                             </small>
                                             <br class="step-2">
                                             <small class="step-2">
-                                                <b>Available Value Library for Body: field###, current-year-dash-index, tax-years-field###, field### date-picker</b>
+                                                <b>Available Value Library for Body: field###, current-year-dash-index, tax-years-field###, field### date-picker, dropdown:option-1|option 2|option3</b>
                                             </small>
                                             <br class="step-2">
                                         </p>
