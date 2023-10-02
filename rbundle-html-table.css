@@ -27,3 +27,7 @@ table.rbundle-html-table tbody td:has(> [value="+"]) {
 table.rbundle-html-table tbody tr.default-row i.fa-solid.fa-trash {
     display: none;
 }
+
+table.rbundle-html-table tbody td select {
+    min-height: 40px !important;
+}

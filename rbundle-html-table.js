@@ -198,29 +198,42 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         }
     }
 
+    // tbody=",,dropdown:option-1|option 2|option3,,"
+    else if (formula.startsWith(`dropdown:`)) {
+        const options = formula.slice(9).split(`|`).map(option => {
+            return `<option value="${option}">${option}</option>`
+        }).join(``)
+        result = `<select>${options}</select>`
+    }
+
     dt.cell({ row: tr, column: td }).data(null === predefined ? result : predefined)
-    table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td).attr(`contenteditable`, contenteditable)
-    if (contenteditable) table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
+    const target_cell = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
+    target_cell.attr(`contenteditable`, contenteditable)
+    if (contenteditable) target_cell
         .off(`blur.contenteditable_${tr}_${td}`)
         .on(`blur.contenteditable_${tr}_${td}`, function () {
             rbundle_html_table_content_editable(table, dt, tr)
         })
 
     // trash click event should be binded after icon created in the cell
-    if (`trash` === formula) table.find(`tbody tr:eq(${tr}) td:eq(${td}) i.fa-solid.fa-trash`)
+    if (`trash` === formula) target_cell.find(`i.fa-solid.fa-trash`)
         .off(`click.trash_${tr}_${td}`)
         .on(`click.trash_${tr}_${td}`, function () {
             rbundle_html_table_delete_row(table, dt, tr)
         })
 
     // add-row button click event should be binded after button created in the cell
-    if (`add-row` === formula) table.find(`tbody tr:eq(${tr}) td:eq(${td}) input[type="button"][value="+"]`)
+    if (`add-row` === formula) target_cell.find(`input[type="button"][value="+"]`)
         .off(`click.add_row_${tr}_${td}`)
         .on(`click.add_row_${tr}_${td}`, function () {
             rbundle_html_table_add_row(table, dt, tr)
         })
 
     if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td)
+    if (formula.startsWith(`dropdown:`)) target_cell.find(`select`).change(function () {
+        target_cell.find(`option[value="${jQuery(this).val()}"]`).attr(`selected`, true)
+        target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
+    })
 }
 
 function rbundle_html_table_content_editable(table, dt, tr) {
@@ -270,8 +283,8 @@ function rbundle_html_table_add_row(table, dt, tr) {
     default_row_indexes.splice(tr + 1, 0, false)
 
     // special case: year index
-    const year_index_td = tbody.indexOf(`current-year-dash-index`)
-    data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
+    var year_index_td = tbody.indexOf(`current-year-dash-index`)
+    if (0 < year_index_td) data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
 
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
     default_row_indexes.map((index, value, array) => {
