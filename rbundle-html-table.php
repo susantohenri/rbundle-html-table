@@ -129,11 +129,11 @@ add_action('admin_menu', function () {
                                             <br class="step-1"><input name="number of columns" value="dynamic" disabled type="radio" class="step-1"> Dynamic
                                             <br class="step-2"><input type="text" name="value number of columns" class="step-2">
                                             <br class="step-2"><small class="step-2">
-                                                <b>Available Value Library for Header:</b> field###, field### date-picker
+                                                <b>Available Value Library for Header:</b> field###, field### date-picker (no future date)
                                             </small>
                                             <br class="step-2">
                                             <small class="step-2">
-                                                <b>Available Value Library for Body: field###, current-year-dash-index, tax-years-field###, field### date-picker, dropdown:option-1|option 2|option3</b>
+                                                <b>Available Value Library for Body: field###, current-year-dash-index, tax-years-field###, field### date-picker, dropdown:option-1|option 2|option3, index</b>
                                             </small>
                                             <br class="step-2">
                                         </p>

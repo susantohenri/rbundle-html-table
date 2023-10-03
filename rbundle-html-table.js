@@ -206,6 +206,10 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         result = `<select>${options}</select>`
     }
 
+    else if (`index` === formula) {
+        result = tr + 1
+    }
+
     dt.cell({ row: tr, column: td }).data(null === predefined ? result : predefined)
     const target_cell = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
     target_cell.attr(`contenteditable`, contenteditable)
@@ -328,7 +332,7 @@ function rbundle_html_table_update_thead_special_case_datepicker(table, col) {
     const target = table.find(`thead`).find(`tr`).find(`th`).eq(col)
     target.click(() => {
         target.off(`click`).html(`<input type="text" style="display: none">`)
-            .datepicker({ autoclose: true })
+            .datepicker({ autoclose: true, endDate: `today` })
             .datepicker(`show`)
             .change(() => { target.html(target.find(`input`).val()) })
     })
@@ -339,7 +343,7 @@ function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) 
     target.focus(() => {
         const input = target.html(`<input type="text" style="display: none">`)
         input.datepicker(`destroy`)
-        input.datepicker({ autoclose: true })
+        input.datepicker({ autoclose: true, endDate: `today` })
         input.datepicker(`show`)
         input.datepicker().on(`change`, function (e) {
             target.html(e.target.value)
