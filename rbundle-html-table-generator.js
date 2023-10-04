@@ -64,6 +64,8 @@ function rbundle_html_table_generate_shortcode() {
         if (formula.startsWith(`field`)) { }
         else if (`current-year-dash-index` === formula) { }
         else if (formula.startsWith(`tax-years-field`)) { }
+        else if (formula.startsWith(`dropdown:`)) { }
+        else if (`index` === formula) { }
         else formula = '`' + formula + '`'
         atbody.push(formula)
 
