@@ -351,3 +351,23 @@ function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) 
         })
     })
 }
+
+function rbundle_html_table_get_val(formula, tr, td) {
+    var result = formula
+    if ('`' === formula.charAt(0) && '`' === formula.slice(-1)) {
+        if (`` === result) result = formula.substring(1, formula.length - 1)
+    } else if (`index` === formula) {
+        result = tr + 1
+    } else if (formula.startsWith(`field`)) {
+        const field = jQuery(`[name="item_meta[${formula.replace(`field`, ``)}]"]`)
+        if (field.length > 0) {
+            if (`` === result) result = field.val()
+            field
+                .off(`change.rbundle_html_table_update_tbody_cell_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+        }
+    }
+    return result
+}
