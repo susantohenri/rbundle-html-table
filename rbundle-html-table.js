@@ -40,6 +40,9 @@ function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
     const is_datepicker = formula.indexOf(`date-picker`) > -1
     if (is_datepicker) formula = formula.replace(`date-picker`, ``).trim()
 
+    const is_currency = formula.indexOf(`currency-format`) > -1
+    if (is_currency) formula = formula.replace(`currency-format`, ``).trim()
+
     // if no attribute tbody
     if (undefined === formula) return false
     formula = formula.trim()
@@ -64,6 +67,10 @@ function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
 
     jQuery(dt.column(th).header()).text(result)
     if (is_datepicker) rbundle_html_table_update_thead_special_case_datepicker(table, th)
+    if (is_currency) table.find(`thead`).find(`tr`).find(`th`).eq(th).blur(function () {
+        const self = jQuery(this)
+        self.html(numeral(self.html()).format('$0,0.00'))
+    })
 }
 
 function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
@@ -142,8 +149,13 @@ function rbundle_html_table_custom_row_count(row_count, redraw_body) {
 function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined) {
     var result = ``
     var contenteditable = true
+
     const is_datepicker = formula.indexOf(`date-picker`) > -1
     if (is_datepicker) formula = formula.replace(`date-picker`, ``)
+
+    const is_currency = formula.indexOf(`currency-format`) > -1
+    if (is_currency) formula = formula.replace(`currency-format`, ``).trim()
+
     formula = formula.trim()
 
     // tbody=",,`N/A`, `153`,,"
@@ -236,6 +248,11 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td)
     if (formula.startsWith(`dropdown:`)) target_cell.find(`select`).change(function () {
         target_cell.find(`option[value="${jQuery(this).val()}"]`).attr(`selected`, true)
+        target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
+    })
+    if (is_currency) target_cell.blur(function () {
+        const self = jQuery(this)
+        self.html(numeral(self.html()).format('$0,0.00'))
         target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
     })
 }

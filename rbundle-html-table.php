@@ -22,14 +22,14 @@
 
 define('RBUNDLE_HTML_TABLE_ATTRIBUTES', [
     /* mandatory fields */
-    'thead' => ',,`Tax Years`,`Subject to BBA` date-picker,',
+    'thead' => ',,`Tax Years`,`Subject to BBA` date-picker, currency-format,',
     /*
         not mandatory fields:
         'id' => 'set_unique_id_here',
         'row-count' => 3,
         'row-count' => current-year-minus-field840,
         'row-count' => field4388+field4388-field4389,
-        'tbody' => ',,`Tax Years`,field1480 date-picker,dropdown:option-1|option 2|option3,',
+        'tbody' => ',,`Tax Years`,field1480 date-picker,dropdown:option-1|option 2|option3, currency-format,',
         'thead-data-csv' => ',,H38,I38,J38,K38',
         'tbody-data-csv' => ',,G39,H39,I39,J39',
         'restrict-delete-default-row' => 'true',
@@ -71,17 +71,28 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
     wp_enqueue_script('rbundle-html-table');
 
     $load_datepicker = false;
+    $load_numeral = false;
     if (isset($a_attr['thead'])) {
         $thead_datepicker = array_filter(explode(',', $a_attr['thead']), function ($th) {
             return strpos($th, 'date-picker') > -1;
         });
         $load_datepicker = $load_datepicker || count($thead_datepicker) > 0;
+
+        $thead_numeral = array_filter(explode(',', $a_attr['thead']), function ($th) {
+            return strpos($th, 'currency-format') > -1;
+        });
+        $load_numeral = $load_numeral || count($thead_numeral) > 0;
     }
     if (isset($a_attr['tbody'])) {
         $tbody_datepicker = array_filter(explode(',', $a_attr['tbody']), function ($td) {
             return strpos($td, 'date-picker') > -1;
         });
         $load_datepicker = $load_datepicker || count($tbody_datepicker) > 0;
+
+        $tbody_numeral = array_filter(explode(',', $a_attr['tbody']), function ($td) {
+            return strpos($td, 'currency-format') > -1;
+        });
+        $load_numeral = $load_numeral || count($tbody_numeral) > 0;
     }
     if ($load_datepicker) {
         wp_register_style('bootstrap-date-picker', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css');
@@ -89,6 +100,10 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
 
         wp_register_script('bootstrap-date-picker', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js');
         wp_enqueue_script('bootstrap-date-picker');
+    }
+    if ($load_numeral) {
+        wp_register_script('numeral', 'https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js');
+        wp_enqueue_script('numeral');
     }
 
     return "<table {$s_attr}></table>";
@@ -129,11 +144,11 @@ add_action('admin_menu', function () {
                                             <br class="step-1"><input name="number of columns" value="dynamic" disabled type="radio" class="step-1"> Dynamic
                                             <br class="step-2"><input type="text" name="value number of columns" class="step-2">
                                             <br class="step-2"><small class="step-2">
-                                                <b>Available Value Library for Header:</b> field###, field### date-picker (no future date)
+                                                <b>Available Value Library for Header:</b> field###, field### date-picker (no future date), currency-format
                                             </small>
                                             <br class="step-2">
                                             <small class="step-2">
-                                                <b>Available Value Library for Body: field###, current-year-dash-index, tax-years-field###, field### date-picker, dropdown:option-1|option 2|option3, index</b>
+                                                <b>Available Value Library for Body: field###, current-year-dash-index, tax-years-field###, field### date-picker, dropdown:option-1|option 2|option3, index, currency-format</b>
                                             </small>
                                             <br class="step-2">
                                         </p>
@@ -187,6 +202,8 @@ date-picker
 index
 
 dropdown:option-1|option 2|option3
+
+currency-format
                                             </textarea>
                                         </p>
 
