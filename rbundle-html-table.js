@@ -37,11 +37,6 @@ function rbundle_html_table_update_thead(thead, dt, table) {
 
 function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
     var result = ``
-    const is_datepicker = formula.indexOf(`date-picker`) > -1
-    if (is_datepicker) formula = formula.replace(`date-picker`, ``).trim()
-
-    const is_currency = formula.indexOf(`currency-format`) > -1
-    if (is_currency) formula = formula.replace(`currency-format`, ``).trim()
 
     // if no attribute tbody
     if (undefined === formula) return false
@@ -66,11 +61,6 @@ function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
     }
 
     jQuery(dt.column(th).header()).text(result)
-    if (is_datepicker) rbundle_html_table_update_thead_special_case_datepicker(table, th)
-    if (is_currency) table.find(`thead`).find(`tr`).find(`th`).eq(th).blur(function () {
-        const self = jQuery(this)
-        self.html(numeral(self.html()).format('$0,0.00'))
-    })
 }
 
 function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
@@ -343,16 +333,6 @@ function rbundle_html_table_update_tbody_special_case_csv(table) {
             number++
         }
     }
-}
-
-function rbundle_html_table_update_thead_special_case_datepicker(table, col) {
-    const target = table.find(`thead`).find(`tr`).find(`th`).eq(col)
-    target.click(() => {
-        target.off(`click`).html(`<input type="text" style="display: none">`)
-            .datepicker({ autoclose: true, endDate: `today` })
-            .datepicker(`show`)
-            .change(() => { target.html(target.find(`input`).val()) })
-    })
 }
 
 function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) {

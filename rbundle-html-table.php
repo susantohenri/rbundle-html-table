@@ -72,17 +72,6 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
 
     $load_datepicker = false;
     $load_numeral = false;
-    if (isset($a_attr['thead'])) {
-        $thead_datepicker = array_filter(explode(',', $a_attr['thead']), function ($th) {
-            return strpos($th, 'date-picker') > -1;
-        });
-        $load_datepicker = $load_datepicker || count($thead_datepicker) > 0;
-
-        $thead_numeral = array_filter(explode(',', $a_attr['thead']), function ($th) {
-            return strpos($th, 'currency-format') > -1;
-        });
-        $load_numeral = $load_numeral || count($thead_numeral) > 0;
-    }
     if (isset($a_attr['tbody'])) {
         $tbody_datepicker = array_filter(explode(',', $a_attr['tbody']), function ($td) {
             return strpos($td, 'date-picker') > -1;
@@ -143,13 +132,6 @@ add_action('admin_menu', function () {
                                             <br class="step-1"><input name="number of columns" value="static" type="radio" class="step-1"> Static
                                             <br class="step-1"><input name="number of columns" value="dynamic" disabled type="radio" class="step-1"> Dynamic
                                             <br class="step-2"><input type="text" name="value number of columns" class="step-2">
-                                            <br class="step-2"><small class="step-2">
-                                                <b>Available Value Library for Header:</b> field###, field### date-picker (no future date), currency-format
-                                            </small>
-                                            <br class="step-2">
-                                            <small class="step-2">
-                                                <b>Available Value Library for Body: field###, current-year-dash-index, tax-years-field###, field### date-picker, dropdown:option-1|option 2|option3, index, currency-format</b>
-                                            </small>
                                             <br class="step-2">
                                         </p>
 
@@ -165,11 +147,6 @@ add_action('admin_menu', function () {
                                             <br class="step-1"><input name="number of rows" value="static" type="radio" class="step-1"> Static
                                             <br class="step-1"><input name="number of rows" value="dynamic" type="radio" class="step-1"> Dynamic
                                             <br class="step-2"><input type="text" name="value number of rows" class="step-2">
-                                            <br class="step-2">
-                                            <small class="step-2">
-                                                <b>Available Value Library for Dynamic: current-year-minus-field###, field###+field###-field###*field###</b>
-                                            </small>
-
                                         </p>
 
                                         <p class="user-able-add-rows">
@@ -190,6 +167,8 @@ add_action('admin_menu', function () {
                                             <br>
                                             <textarea style="width: 100%;" rows="5" disabled>
 current-year-minus-field###
+
+field###+field###-field###*field###
 
 field###
 
