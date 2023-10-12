@@ -57,6 +57,8 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
 
     $s_attr = '';
     foreach ($a_attr as $attr => $values) $s_attr .= "{$attr} = '{$values}'";
+    wp_register_script('bootstrap', 'https://cdn.usebootstrap.com/bootstrap/3.3.7/js/bootstrap.min.js');
+    wp_enqueue_script('bootstrap');
 
     wp_register_style('datatables', 'https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css');
     wp_enqueue_style('datatables');

@@ -240,11 +240,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         target_cell.find(`option[value="${jQuery(this).val()}"]`).attr(`selected`, true)
         target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
     })
-    if (is_currency) target_cell.blur(function () {
-        const self = jQuery(this)
-        self.html(numeral(self.html()).format('$0,0.00'))
-        target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
-    })
+    if (is_currency) rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td)
 }
 
 function rbundle_html_table_content_editable(table, dt, tr) {
@@ -343,8 +339,35 @@ function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) 
         input.datepicker({ autoclose: true, endDate: `today` })
         input.datepicker(`show`)
         input.datepicker().on(`change`, function (e) {
-            target.html(e.target.value)
-            target.trigger(`blur.contenteditable_${tr}_${td}`)
+            if (`Invalid Date` == new Date(e.target.value)) rbundle_html_table_show_error(target, `Invalid Date`)
+            else {
+                target.html(e.target.value)
+                target.trigger(`blur.contenteditable_${tr}_${td}`)
+            }
         })
+    })
+}
+
+function rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td) {
+    target_cell.blur(function () {
+        const self = jQuery(this)
+        const number = self.html()
+        if (isNaN(number)) rbundle_html_table_show_error(self, `Numbers only`)
+        else {
+            self.html(numeral(self.html()).format('$0,0.00'))
+            target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
+        }
+    })
+}
+
+function rbundle_html_table_show_error(target, error_message) {
+    target.css(`background-color`, `red`)
+    target.css(`opacity`, `0.36`)
+    target.tooltip({ container: `body`, title: error_message })
+    target.tooltip(`show`)
+    target.focus(() => {
+        target.css(`background-color`, ``)
+        target.css(`opacity`, `1`)
+        target.tooltip(`destroy`)
     })
 }
