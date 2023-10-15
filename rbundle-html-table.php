@@ -186,6 +186,8 @@ dropdown:option-1|option 2|option3
 
 dropdown:|option-1|option 2 <== without initial value
 
+dropdown:|option-1|other <== for allow write-in values
+
 currency-format
                                             </textarea>
                                         </p>

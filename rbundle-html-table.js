@@ -361,11 +361,38 @@ function rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, 
     const select = target_cell.find(`select`)
     if (`` === select.val()) target_cell.addClass(`invalid-cell`)
     select.change(function () {
-        const selected = jQuery(this).val()
+        var selected = jQuery(this).val()
+
+        if (`` === selected) target_cell.addClass(`invalid-cell`)
+        else if (`other` === selected) {
+            select.after(`
+                <div class="input-group dialog" style="margin-top: 5px">
+                    <input type="text" class="form-control" style="height: 34px">
+                    <span class="input-group-btn">
+                        <button class="btn btn-success" type="button"><i class="fa fa-check"></i></button>
+                        <button class="btn btn-danger" type="button"><i class="fa fa-times"></i></button>
+                    </span>
+                </div>
+            `)
+            const dialog = target_cell.find(`.dialog`)
+            dialog.find(`.btn-success`).click(() => {
+                const option = dialog.find(`[type="text"]`).val()
+                if (`` !== option) {
+                    select.append(`<option value="${option}">${option}</option>`)
+                    target_cell.find(`option[value="${option}"]`).attr(`selected`, true)
+                    dialog.remove()
+                    target_cell.removeClass(`invalid-cell`)
+                    target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
+                } else dialog.remove()
+            })
+            dialog.find(`.btn-danger`).click(() => {
+                dialog.remove()
+            })
+        }
+        else target_cell.removeClass(`invalid-cell`)
+
         target_cell.find(`option[value="${selected}"]`).attr(`selected`, true)
         target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
-        if (`` === selected) target_cell.addClass(`invalid-cell`)
-        else target_cell.removeClass(`invalid-cell`)
     })
 }
 
