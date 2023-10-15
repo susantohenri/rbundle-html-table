@@ -236,10 +236,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         })
 
     if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td)
-    if (formula.startsWith(`dropdown:`)) target_cell.find(`select`).change(function () {
-        target_cell.find(`option[value="${jQuery(this).val()}"]`).attr(`selected`, true)
-        target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
-    })
+    if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, td)
     if (is_currency) rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td)
 }
 
@@ -357,6 +354,18 @@ function rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, 
             self.html(numeral(self.html()).format('$0,0.00'))
             target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
         }
+    })
+}
+
+function rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, td) {
+    const select = target_cell.find(`select`)
+    if (`` === select.val()) target_cell.addClass(`invalid-cell`)
+    select.change(function () {
+        const selected = jQuery(this).val()
+        target_cell.find(`option[value="${selected}"]`).attr(`selected`, true)
+        target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
+        if (`` === selected) target_cell.addClass(`invalid-cell`)
+        else target_cell.removeClass(`invalid-cell`)
     })
 }
 
