@@ -361,13 +361,11 @@ function rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, 
 }
 
 function rbundle_html_table_show_error(target, error_message) {
-    target.css(`background-color`, `red`)
-    target.css(`opacity`, `0.36`)
+    target.addClass(`invalid-cell`)
     target.tooltip({ container: `body`, title: error_message })
     target.tooltip(`show`)
     target.focus(() => {
-        target.css(`background-color`, ``)
-        target.css(`opacity`, `1`)
+        target.removeClass(`invalid-cell`)
         target.tooltip(`destroy`)
     })
 }
