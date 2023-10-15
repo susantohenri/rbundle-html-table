@@ -238,6 +238,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td)
     if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, td)
     if (is_currency) rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td)
+    if (`zipcode-validation` === formula) rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td)
 }
 
 function rbundle_html_table_content_editable(table, dt, tr) {
@@ -396,12 +397,21 @@ function rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, 
     })
 }
 
+function rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td) {
+    target_cell.blur(() => {
+        const zipcode = target_cell.html()
+        if (5 === zipcode.length) { }
+        else if (10 === zipcode.length && `-` === zipcode.charAt(5)) { }
+        else rbundle_html_table_show_error(target_cell, `Invalid ZIP Code`)
+    })
+}
+
 function rbundle_html_table_show_error(target, error_message) {
     target.addClass(`invalid-cell`)
     target.tooltip({ container: `body`, title: error_message })
     target.tooltip(`show`)
     target.focus(() => {
         target.removeClass(`invalid-cell`)
-        target.tooltip(`destroy`)
+        target.tooltip(`hide`)
     })
 }
