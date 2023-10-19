@@ -341,6 +341,7 @@ function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) 
     })
     target.blur(() => {
         setTimeout(() => {
+            rbundle_html_table_reset_error(target)
             var date = target.html().split(`<`)[0]
             if (`` === date) target.addClass(`invalid-cell`)
             else if (`Invalid Date` == new Date(date)) {
@@ -359,8 +360,9 @@ function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) 
 
 function rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td) {
     target_cell.blur(function () {
+        rbundle_html_table_reset_error(target_cell)
         const self = jQuery(this)
-        const number = self.html()
+        const number = self.html().replace(`$`, ``).replace(`,`, ``)
         if (`` === number) { }
         else if (isNaN(number)) rbundle_html_table_show_error(self, `Numbers only`)
         else {
@@ -412,6 +414,7 @@ function rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, 
 
 function rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td) {
     target_cell.blur(() => {
+        rbundle_html_table_reset_error(target_cell)
         const zipcode = target_cell.html()
         if (5 === zipcode.length) { }
         else if (10 === zipcode.length && `-` === zipcode.charAt(5)) { }
@@ -425,6 +428,11 @@ function rbundle_html_table_show_error(target, error_message) {
     target.tooltip(`show`)
     target.focus(() => {
         target.removeClass(`invalid-cell`)
-        target.tooltip(`hide`)
+        target.tooltip(`destroy`)
     })
+}
+
+function rbundle_html_table_reset_error(target) {
+    target.removeClass(`invalid-cell`)
+    target.tooltip(`destroy`)
 }
