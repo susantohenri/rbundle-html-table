@@ -335,14 +335,20 @@ function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) 
         const input = target.html(`<input type="hidden">`)
         input.datepicker(`destroy`)
         input.datepicker({ autoclose: true, endDate: `today` })
-        input.datepicker(`show`)
         input.datepicker().on(`change`, function (e) {
-            if (`Invalid Date` == new Date(e.target.value)) rbundle_html_table_show_error(target, `Invalid Date`)
+            target.html(e.target.value)
+        })
+    })
+    target.blur(() => {
+        setTimeout(() => {
+            const date = target.html()
+            if (`` === date) target.addClass(`invalid-cell`)
+            else if (`Invalid Date` == new Date(date)) rbundle_html_table_show_error(target, `Invalid Date`)
             else {
-                target.html(e.target.value)
+                target.removeClass(`invalid-cell`)
                 target.trigger(`blur.contenteditable_${tr}_${td}`)
             }
-        })
+        }, 500)
     })
 }
 
