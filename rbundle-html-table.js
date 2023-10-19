@@ -373,6 +373,7 @@ function rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, 
     const select = target_cell.find(`select`)
     if (`` === select.val()) target_cell.addClass(`invalid-cell`)
     select.change(function () {
+        target_cell.find(`.dialog`).remove()
         var selected = jQuery(this).val()
 
         if (`` === selected) target_cell.addClass(`invalid-cell`)

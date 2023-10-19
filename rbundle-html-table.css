@@ -10,6 +10,10 @@ table.rbundle-html-table tbody td.invalid-cell {
     color: white;
 }
 
+table.rbundle-html-table tbody td.invalid-cell select option {
+    color: black !important;
+}
+
 table.rbundle-html-table tbody td [value="+"] {
     background-color: #134BCC;
     color: white;
