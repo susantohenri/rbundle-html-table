@@ -361,7 +361,8 @@ function rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, 
     target_cell.blur(function () {
         const self = jQuery(this)
         const number = self.html()
-        if (isNaN(number)) rbundle_html_table_show_error(self, `Numbers only`)
+        if (`` === number) { }
+        else if (isNaN(number)) rbundle_html_table_show_error(self, `Numbers only`)
         else {
             self.html(numeral(self.html()).format('$0,0.00'))
             target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
