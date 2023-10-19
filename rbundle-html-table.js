@@ -341,10 +341,15 @@ function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) 
     })
     target.blur(() => {
         setTimeout(() => {
-            const date = target.html()
+            var date = target.html().split(`<`)[0]
             if (`` === date) target.addClass(`invalid-cell`)
-            else if (`Invalid Date` == new Date(date)) rbundle_html_table_show_error(target, `Invalid Date`)
-            else {
+            else if (`Invalid Date` == new Date(date)) {
+                rbundle_html_table_show_error(target, `Invalid Date`)
+            } else {
+                date = date.split(`/`).map((split, index) => {
+                    return 2 === index ? `20` + split.slice(-2) : (`0` + split).slice(-2)
+                })
+                target.html(date.join(`/`))
                 target.removeClass(`invalid-cell`)
                 target.trigger(`blur.contenteditable_${tr}_${td}`)
             }
