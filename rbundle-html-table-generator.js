@@ -66,6 +66,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (formula.startsWith(`tax-years-field`)) { }
         else if (formula.startsWith(`dropdown:`)) { }
         else if (`index` === formula) { }
+        else if (`zipcode-validation` === formula) { }
         else if (formula.indexOf(`currency-format`) > 1) { }
         else formula = '`' + formula + '`'
         atbody.push(formula)
