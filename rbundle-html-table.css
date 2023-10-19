@@ -3,8 +3,8 @@ table.rbundle-html-table tbody td {
 }
 
 table.rbundle-html-table tbody td:empty,
-table.rbundle-html-table tbody td.invalid-cell
-{
+table.rbundle-html-table tbody td:has(> input[type="hidden"]), /* for unpicked datepicker */
+table.rbundle-html-table tbody td.invalid-cell {
     border: 0.5px solid black;
     background-color: red;
     opacity: 0.36;

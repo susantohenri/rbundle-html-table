@@ -332,7 +332,7 @@ function rbundle_html_table_update_tbody_special_case_csv(table) {
 function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) {
     const target = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
     target.focus(() => {
-        const input = target.html(`<input type="text" style="display: none">`)
+        const input = target.html(`<input type="hidden">`)
         input.datepicker(`destroy`)
         input.datepicker({ autoclose: true, endDate: `today` })
         input.datepicker(`show`)
