@@ -347,6 +347,7 @@ function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) 
             else if (`Invalid Date` == new Date(date)) {
                 rbundle_html_table_show_error(target, `Invalid Date`)
             } else {
+                date = date.replaceAll(`-`, `/`)
                 date = date.split(`/`).map((split, index) => {
                     return 2 === index ? `20` + split.slice(-2) : (`0` + split).slice(-2)
                 })
