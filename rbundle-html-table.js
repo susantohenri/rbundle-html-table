@@ -415,9 +415,9 @@ function rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, 
 function rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td) {
     target_cell.blur(() => {
         rbundle_html_table_reset_error(target_cell)
-        const zipcode = target_cell.html()
-        if (5 === zipcode.length) { }
-        else if (10 === zipcode.length && `-` === zipcode.charAt(5)) { }
+        var zipcode = target_cell.html()
+        if (zipcode.length === 9 && 0 > zipcode.indexOf(`-`)) zipcode = zipcode.slice(0, 5) + `-` + zipcode.slice(5)
+        if (/(^\d{5}$)|(^\d{5}-\d{4}$)/.test(zipcode)) target_cell.html(zipcode)
         else rbundle_html_table_show_error(target_cell, `Invalid ZIP Code`)
     })
 }
