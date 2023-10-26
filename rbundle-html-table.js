@@ -202,10 +202,13 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
 
     // tbody=",,dropdown:option-1|option 2|option3,,"
     else if (formula.startsWith(`dropdown:`)) {
+        var there_is_other = false
         const options = formula.slice(9).split(`|`).map(option => {
+            if (`other` === option) there_is_other = true
             return `<option value="${option}">${option}</option>`
         }).join(``)
         result = `<select>${options}</select>`
+        if (there_is_other) result += `<input type="text" class="form-control" style="height: 34px; display: none">`
     }
 
     else if (`index` === formula) {
@@ -236,7 +239,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         })
 
     if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td)
-    if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, td)
+    if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
     if (is_currency) rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td)
     if (`zipcode-validation` === formula) rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td)
 }
@@ -373,39 +376,22 @@ function rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, 
     })
 }
 
-function rbundle_html_table_update_tbody_special_case_dropdown(target_cell, tr, td) {
+function rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td) {
     const select = target_cell.find(`select`)
     if (`` === select.val()) target_cell.addClass(`invalid-cell`)
     select.change(function () {
-        target_cell.find(`.dialog`).remove()
         var selected = jQuery(this).val()
 
+        if (`other` === selected) {
+            select.siblings(`[type=text]`).show()
+            select.siblings(`[type=text]`)
+            .blur(function () {
+                jQuery(this).attr(`value`, jQuery(this).val())
+                dt.cell(tr, td).data(target_cell.html())
+            })
+        } else select.siblings(`[type=text]`).hide()
+
         if (`` === selected) target_cell.addClass(`invalid-cell`)
-        else if (`other` === selected) {
-            select.after(`
-                <div class="input-group dialog" style="margin-top: 5px">
-                    <input type="text" class="form-control" style="height: 34px">
-                    <span class="input-group-btn">
-                        <button class="btn btn-success" type="button"><i class="fa fa-check"></i></button>
-                        <button class="btn btn-danger" type="button"><i class="fa fa-times"></i></button>
-                    </span>
-                </div>
-            `)
-            const dialog = target_cell.find(`.dialog`)
-            dialog.find(`.btn-success`).click(() => {
-                const option = dialog.find(`[type="text"]`).val()
-                if (`` !== option) {
-                    select.append(`<option value="${option}">${option}</option>`)
-                    target_cell.find(`option[value="${option}"]`).attr(`selected`, true)
-                    dialog.remove()
-                    target_cell.removeClass(`invalid-cell`)
-                    target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
-                } else dialog.remove()
-            })
-            dialog.find(`.btn-danger`).click(() => {
-                dialog.remove()
-            })
-        }
         else target_cell.removeClass(`invalid-cell`)
 
         target_cell.find(`option[value="${selected}"]`).attr(`selected`, true)
