@@ -249,7 +249,7 @@ function rbundle_html_table_content_editable(table, dt, tr) {
     for (var td = 0; td < data.length; td++) {
         data[td] = table.find(`tbody tr:eq(${tr}) td:eq(${td})`).html()
     }
-    // dt.row(tr).data(data)
+    // dt.row(tr).data(data) this line reset all event on each element rewritten
 }
 
 function rbundle_html_table_delete_row(table, dt, tr) {
@@ -388,6 +388,7 @@ function rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, 
             .blur(function () {
                 jQuery(this).attr(`value`, jQuery(this).val())
                 dt.cell(tr, td).data(target_cell.html())
+                rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
             })
         } else select.siblings(`[type=text]`).hide()
 
