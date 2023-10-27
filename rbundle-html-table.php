@@ -191,6 +191,10 @@ dropdown:|option-1|other <== for allow write-in values
 zipcode-validation
 
 currency-format
+
+if 5 equals field### then `Yes` else if field### not-equals field### then field### else if field### equals `No` then 18 else field###
+
+if 5 equals field### then `Yes` else field###
                                             </textarea>
                                         </p>
 

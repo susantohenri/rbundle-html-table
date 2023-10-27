@@ -68,6 +68,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (`index` === formula) { }
         else if (`zipcode-validation` === formula) { }
         else if (formula.indexOf(`currency-format`) > 1) { }
+        else if (formula.startsWith(`if`)) { }
         else formula = '`' + formula + '`'
         atbody.push(formula)
 

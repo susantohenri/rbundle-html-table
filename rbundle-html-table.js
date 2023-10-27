@@ -242,6 +242,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
     if (is_currency) rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td)
     if (`zipcode-validation` === formula) rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td)
+    if (formula.startsWith(`if`)) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
 }
 
 function rbundle_html_table_content_editable(table, dt, tr) {
@@ -385,11 +386,11 @@ function rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, 
         if (`other` === selected) {
             select.siblings(`[type=text]`).show()
             select.siblings(`[type=text]`)
-            .blur(function () {
-                jQuery(this).attr(`value`, jQuery(this).val())
-                dt.cell(tr, td).data(target_cell.html())
-                rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
-            })
+                .blur(function () {
+                    jQuery(this).attr(`value`, jQuery(this).val())
+                    dt.cell(tr, td).data(target_cell.html())
+                    rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
+                })
         } else select.siblings(`[type=text]`).hide()
 
         if (`` === selected) target_cell.addClass(`invalid-cell`)
@@ -408,6 +409,106 @@ function rbundle_html_table_update_tbody_special_case_zipcode_validation(target_
         if (/(^\d{5}$)|(^\d{5}-\d{4}$)/.test(zipcode)) target_cell.html(zipcode)
         else rbundle_html_table_show_error(target_cell, `Invalid ZIP Code`)
     })
+}
+
+function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td) {
+    // tbody=",,if 5 equals field4387 then `Yes` else if field4388 not-equals field4389 then field4387 else if field4389 equals `No` then 18 else field4387,,"
+    const blocks = formula.split(`else`)
+    var matched = false
+    for (var block of blocks) {
+        if (matched) continue;
+        block = block.trim()
+        var component = block.split(` `)
+
+        // only else
+        if (1 === component.length) {
+            matched = true
+            if (component[0].startsWith(`field`)) {
+                const field = jQuery(`[name="item_meta[${component[0].replace(`field`, ``)}]"]`)
+                if (field.length > 0) {
+                    component[0] = field.val()
+                    field
+                        .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`)
+                        .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`, () => {
+                            rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                        })
+                }
+            }
+            target_cell.html(component[0])
+        }
+
+        if (6 !== component.length) continue;// incorrect formula
+        if (`if` !== component[0]) continue;
+        if (0 > [`equals`, `not-equals`, `greater-than`, `greater-than-equals`, `less-than`, `less-than-equals`].indexOf(component[2])) continue;
+        if (`then` !== component[4]) continue;
+
+        var left = component[1]
+        const operator = component[2]
+        var right = component[3]
+        const value = component[5]
+
+        if (left.startsWith(`field`)) {
+            const field = jQuery(`[name="item_meta[${left.replace(`field`, ``)}]"]`)
+            if (field.length > 0) {
+                left = field.val()
+                field
+                    .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`)
+                    .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`, () => {
+                        rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    })
+            }
+        }
+
+        if (right.startsWith(`field`)) {
+            const field = jQuery(`[name="item_meta[${right.replace(`field`, ``)}]"]`)
+            if (field.length > 0) {
+                right = field.val()
+                field
+                    .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`)
+                    .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`, () => {
+                        rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    })
+            }
+        }
+
+        switch (operator) {
+            case `equals`:
+                if (left == right) {
+                    matched = true
+                    target_cell.html(value)
+                }
+                ; break
+            case `not-equals`:
+                if (left != right) {
+                    matched = true
+                    target_cell.html(value)
+                }
+                ; break
+            case `greater-than`:
+                if (left > right) {
+                    matched = true
+                    target_cell.html(value)
+                }
+                ; break
+            case `greater-than-equals`:
+                if (left >= right) {
+                    matched = true
+                    target_cell.html(value)
+                }
+            case `less-than`:
+                if (left < right) {
+                    matched = true
+                    target_cell.html(value)
+                }
+                ; break
+            case `less-than-equals`:
+                if (left <= right) {
+                    matched = true
+                    target_cell.html(value)
+                }
+                ; break
+        }
+    }
 }
 
 function rbundle_html_table_show_error(target, error_message) {
