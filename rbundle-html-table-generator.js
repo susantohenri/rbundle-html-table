@@ -1,6 +1,8 @@
 const no_of_cols = jQuery(`.number-of-columns`)
 const no_of_rows = jQuery(`.number-of-rows`)
+
 jQuery(`[class^="step-"]`).not(`[class="step-1"]`).hide()
+
 jQuery(`[name="user_able_to_import_export_csv"]`).click(() => {
     no_of_cols.find(`[type="text"].step-2`).trigger(`keyup`)
 })
@@ -110,3 +112,32 @@ function rbundle_html_table_generate_shortcode() {
     } else rbundle_html_table_generated_shortcode = []
     jQuery(`#rbundle_html_table_generated_shortcode`).html(rbundle_html_table_generated_shortcode.join(``))
 }
+
+jQuery(`#reverse_formula`).keyup(function () {
+    jQuery(`#reverse_formula_error`).html(``)
+    var formula = jQuery(this).val()
+    var error_message = `shortcode incomplete or invalid`
+    if (0 !== formula.indexOf(`[rbundle-html-table`)) jQuery(`#reverse_formula_error`).html(error_message)
+
+    for (const attr of [`id`, `thead`, `tbody`, `thead-data-csv`, `tbody-data-csv`, `restrict-delete-default-row`, `row-count`]) {
+        if (0 > formula.indexOf(`${attr}="`)) continue;
+        const attr_value = formula.split(`${attr}="`)[1].split(`"`)[0]
+        switch (attr) {
+            case `id`:
+                jQuery(`.table-id`).val(attr_value)
+                    ; break
+            case `thead`:
+                    ; break
+            case `tboody`:
+                    ; break
+            case `thead-data-csv`:
+                    ; break
+            case `tbody-data-csv`:
+                    ; break
+            case `restrict-delete-default-row`:
+                    ; break
+            case `row-count`:
+                    ; break
+        }
+    }
+})

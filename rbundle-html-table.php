@@ -119,6 +119,12 @@ add_action('admin_menu', function () {
                                 </div>
                                 <div class="inside">
                                     <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+
+                                        <p>
+                                            <textarea placeholder="paste existing shortcode here to edit" style="width: 100%;" cols="100" rows="10" id="reverse_formula"></textarea>
+                                            <i id="reverse_formula_error"></i>
+                                        </p>
+
                                         <hr>
                                         <p><b>Dimensions</b></p>
 
