@@ -113,14 +113,20 @@ function rbundle_html_table_generate_shortcode() {
     jQuery(`#rbundle_html_table_generated_shortcode`).html(rbundle_html_table_generated_shortcode.join(``))
 }
 
-jQuery(`#reverse_formula`).keyup(function () {
+jQuery(`#run_reverse_formula`).click(function (event) {
+    event.preventDefault()
     jQuery(`#reverse_formula_error`).html(``)
-    var formula = jQuery(this).val()
+    var formula = jQuery(`#reverse_formula`).val()
     var error_message = `shortcode incomplete or invalid`
     if (0 !== formula.indexOf(`[rbundle-html-table`)) jQuery(`#reverse_formula_error`).html(error_message)
 
-    var user_able_to_add_row = false
-    for (const attr of [`id`, `tbody`, `thead`, `thead-data-csv`, `tbody-data-csv`, `restrict-delete-default-row`, `row-count`]) {
+    jQuery(`[name="user_able_to_import_export_csv"][value="${-1 < formula.indexOf(`-data-csv`) ? `yes` : `no`}"]`).click()
+    jQuery(`[name="number of columns"][value="static"]`).click()
+    const user_able_to_add_row = -1 < formula.indexOf(`add-row`)
+    jQuery(`[name="user_able_to_add_rows"][value="${user_able_to_add_row ? `yes` : `no`}"]`).click()
+    jQuery(`[name="user_able_to_delete_default_rows"][value="${-1 < formula.indexOf(`restrict-delete-default-row="true"`) ? `no` : `yes`}"]`).click()
+
+    for (const attr of [`id`, `thead`, `tbody`, `thead-data-csv`, `tbody-data-csv`, `restrict-delete-default-row`, `row-count`]) {
         if (0 > formula.indexOf(`${attr}="`)) continue;
         const attr_value = formula.split(`${attr}="`)[1].split(`"`)[0]
         switch (attr) {
@@ -131,21 +137,26 @@ jQuery(`#reverse_formula`).keyup(function () {
                 var ths = attr_value.split(`,`)
                 ths = user_able_to_add_row ? ths.slice(1, -1) : ths
 
-                jQuery(`[name="number of columns"][value="static"]`).click()
                 jQuery(`[name="value number of columns"]`).val(ths.length).trigger(`keyup`)
                 for (var thi = 0; thi <= ths.length; thi++) jQuery(`[name="header[]"]`).eq(thi).val(ths[thi]).trigger(`keyup`)
                     ; break
             case `tbody`:
-                user_able_to_add_row = -1 < attr_value.indexOf(`add-row`)
+                var tds = attr_value.split(`,`)
+                tds = user_able_to_add_row ? tds.slice(1, -1) : tds
+                for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="body[]"]`).eq(tdi).val(tds[tdi]).trigger(`keyup`)
                     ; break
             case `thead-data-csv`:
-                ; break
+                var tds = attr_value.split(`,`)
+                for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="csv-header[]"]`).eq(tdi).val(tds[tdi]).trigger(`keyup`)
+                    ; break
             case `tbody-data-csv`:
-                ; break
-            case `restrict-delete-default-row`:
-                ; break
+                var tds = attr_value.split(`,`)
+                for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="csv-body[]"]`).eq(tdi).val(tds[tdi]).trigger(`keyup`)
+                    ; break
             case `row-count`:
-                ; break
+                jQuery(`[name="number of rows"]`).eq(0).click()
+                jQuery(`[name="value number of rows"]`).val(attr_value)
+                    ; break
         }
     }
 })

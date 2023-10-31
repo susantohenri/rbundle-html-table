@@ -121,7 +121,9 @@ add_action('admin_menu', function () {
                                     <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
 
                                         <p>
-                                            <textarea placeholder="paste existing shortcode here to edit" style="width: 100%;" cols="100" rows="10" id="reverse_formula"></textarea>
+                                            <b>Modify Existing Short Code</b>
+                                            <textarea placeholder="Paste existing shortcode here to edit" style="width: 100%;" cols="100" rows="10" id="reverse_formula"></textarea>
+                                            <button id="run_reverse_formula">Import Short Code</button>
                                             <i id="reverse_formula_error"></i>
                                         </p>
 
