@@ -416,7 +416,16 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
     for (var block of blocks) {
         if (matched) continue;
         block = block.trim()
-        var component = block.split(` `)
+        var value = ``
+
+        if (-1 < block.indexOf(`then`)) {
+            value = block.split(`then`)[1].trim()
+            var component = block.replace(value, ``).trim().split(` `)
+            component.push(value)
+        } else {
+            value = block
+            var component = [block]
+        }
 
         // only else
         if (1 === component.length) {
@@ -432,7 +441,7 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
                         })
                 }
             }
-            target_cell.html(component[0])
+            target_cell.html(value)
         }
 
         if (6 !== component.length) continue;// incorrect formula
@@ -443,7 +452,6 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
         var left = component[1]
         const operator = component[2]
         var right = component[3]
-        const value = component[5]
 
         if (left.startsWith(`field`)) {
             const field = jQuery(`[name="item_meta[${left.replace(`field`, ``)}]"]`)
@@ -455,7 +463,7 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
                         rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                     })
             }
-        }
+        } else if (`index` === left) left = tr + 1
 
         if (right.startsWith(`field`)) {
             const field = jQuery(`[name="item_meta[${right.replace(`field`, ``)}]"]`)
@@ -467,7 +475,7 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
                         rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                     })
             }
-        }
+        } else if (`index` === right) right = tr + 1
 
         switch (operator) {
             case `equals`:
