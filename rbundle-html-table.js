@@ -238,7 +238,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
             rbundle_html_table_add_row(table, dt, tr)
         })
 
-    if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td)
+    if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(target_cell, tr, td)
     if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
     if (is_currency) rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td)
     if (`zipcode-validation` === formula) rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td)
@@ -333,14 +333,12 @@ function rbundle_html_table_update_tbody_special_case_csv(table) {
     }
 }
 
-function rbundle_html_table_update_tbody_special_case_datepicker(table, tr, td) {
-    const target = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
+function rbundle_html_table_update_tbody_special_case_datepicker(target, tr, td) {
     target.focus(() => {
         const input = target.html(`<input type="hidden">`)
-        input.datepicker(`destroy`)
         input.datepicker({ autoclose: true, endDate: `today` })
-        input.datepicker().on(`change`, function (e) {
-            target.html(e.target.value)
+        input.datepicker().off(`changeDate`).on(`changeDate`, function (e) {
+            target.html(e.format(0, `mm/dd/yyyy`))
         })
     })
     target.blur(() => {
