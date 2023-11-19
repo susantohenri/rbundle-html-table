@@ -69,6 +69,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (formula.startsWith(`dropdown:`)) { }
         else if (`index` === formula) { }
         else if (`zipcode-validation` === formula) { }
+        else if (`date-picker` === formula) { }
         else if (formula.indexOf(`currency-format`) > 1) { }
         else if (formula.startsWith(`if`)) { }
         else formula = '`' + formula + '`'
@@ -138,20 +139,20 @@ jQuery(`#run_reverse_formula`).click(function (event) {
                 ths = user_able_to_add_row ? ths.slice(1, -1) : ths
 
                 jQuery(`[name="value number of columns"]`).val(ths.length).trigger(`keyup`)
-                for (var thi = 0; thi <= ths.length; thi++) jQuery(`[name="header[]"]`).eq(thi).val(ths[thi]).trigger(`keyup`)
+                for (var thi = 0; thi <= ths.length; thi++) jQuery(`[name="header[]"]`).eq(thi).val(ths[thi].replaceAll('`',``)).trigger(`keyup`)
                     ; break
             case `tbody`:
                 var tds = attr_value.split(`,`)
                 tds = user_able_to_add_row ? tds.slice(1, -1) : tds
-                for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="body[]"]`).eq(tdi).val(tds[tdi]).trigger(`keyup`)
+                for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="body[]"]`).eq(tdi).val(tds[tdi].replaceAll('`',``)).trigger(`keyup`)
                     ; break
             case `thead-data-csv`:
                 var tds = attr_value.split(`,`)
-                for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="csv-header[]"]`).eq(tdi).val(tds[tdi]).trigger(`keyup`)
+                for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="csv-header[]"]`).eq(tdi).val(tds[tdi].replaceAll('`',``)).trigger(`keyup`)
                     ; break
             case `tbody-data-csv`:
                 var tds = attr_value.split(`,`)
-                for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="csv-body[]"]`).eq(tdi).val(tds[tdi]).trigger(`keyup`)
+                for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="csv-body[]"]`).eq(tdi).val(tds[tdi].replaceAll('`',``)).trigger(`keyup`)
                     ; break
             case `row-count`:
                 jQuery(`[name="number of rows"]`).eq(0).click()
