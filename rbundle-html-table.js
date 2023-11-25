@@ -168,7 +168,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
 
     // tbody=",,trash,,"
     else if (`trash` === formula) {
-        if (`` === result) result = `<i class="fa-solid fa-trash"></i>`
+        if (`` === result) result = `<i class="fas fa-sm fa-solid fa-trash"></i>`
         contenteditable = false
     }
 
