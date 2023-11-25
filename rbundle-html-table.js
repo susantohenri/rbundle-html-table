@@ -285,11 +285,15 @@ function rbundle_html_table_add_row(table, dt, tr) {
     const row_to_add = []
     for (var th = 0; th < thead_length; th++) {
         var new_cell = ``
-        if ([`add-row`, `trash`].indexOf(tbody[th]) > -1 || tbody[th].indexOf(`dropdown:`) > -1) new_cell = null// fallback to tbody formula
+        if ([`add-row`, `trash`].indexOf(tbody[th]) > -1 || tbody[th].indexOf(`dropdown:`) > -1 || `index` === tbody[th]) new_cell = null// fallback to tbody formula
         row_to_add.push(new_cell)
     }
     data.splice(tr + 1, 0, row_to_add)
     default_row_indexes.splice(tr + 1, 0, false)
+
+    // special case: index
+    const index_td = tbody.indexOf(`index`)
+    if (0 < index_td) data = rbundle_html_table_add_row_case_index(index_td, data)
 
     // special case: year index
     var year_index_td = tbody.indexOf(`current-year-dash-index`)
@@ -299,6 +303,11 @@ function rbundle_html_table_add_row(table, dt, tr) {
     default_row_indexes.map((index, value, array) => {
         if (true === value) table.find(`tbody tr`).eq(index).addClass(`default-row`)
     })
+}
+
+function rbundle_html_table_add_row_case_index(index_td, data) {
+    for (var tr = 0; tr < data.length; tr++) data[tr][index_td] = tr + 1
+    return data
 }
 
 function rbundle_html_table_add_row_case_year_index(year_index_td, data) {
