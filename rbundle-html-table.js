@@ -25,7 +25,6 @@ function rbundle_html_table_draw_table(table) {
             rbundle_html_table_update_tbody(thead_length, table.attr(`tbody`).split(`,`), dt, table, null)
         }
     }
-    if (table.attr('restrict-delete-default-row')) table.find(`tbody tr`).addClass(`default-row`)
 }
 
 function rbundle_html_table_update_thead(thead, dt, table) {
@@ -82,6 +81,13 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     }
     dt.clear()
     dt.rows.add(body).draw()
+    if (!data) {
+        if (table.attr('restrict-delete-default-row')) table.find(`tbody tr`).addClass(`default-row`)
+        if (-1 < table.attr(`tbody`).indexOf(`read-only-index`)) table.find(`tr`).each(function () {
+            const tr = jQuery(this)
+            tr.attr(`read-only-index`, tr.index() + 1)
+        })
+    }
 
     for (var tr = 0; tr < row_count; tr++) {
         for (var td = 0; td < thead_length; td++) {
@@ -260,9 +266,13 @@ function rbundle_html_table_delete_row(table, dt, tr) {
     var default_row_indexes = table.find(`tbody tr`).map(function () {
         return jQuery(this).is(`.default-row`)
     })
+    var read_only_index_indexes = table.find(`tbody tr`).map(function () {
+        return jQuery(this).is(`[read-only-index]`)
+    })
 
     data.splice(tr, 1)
     default_row_indexes.splice(tr, 1)
+    read_only_index_indexes.splice(tr, 1)
 
     // special case: year index
     const year_index_td = tbody.indexOf(`current-year-dash-index`)
@@ -271,6 +281,13 @@ function rbundle_html_table_delete_row(table, dt, tr) {
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
     default_row_indexes.map((index, value, array) => {
         if (true === value) table.find(`tbody tr`).eq(index).addClass(`default-row`)
+    })
+    var read_only_index = 0
+    read_only_index_indexes.map((index, value, array) => {
+        if (true === value) {
+            read_only_index++
+            table.find(`tbody tr`).eq(index).attr(`read-only-index`, read_only_index)
+        }
     })
 }
 
@@ -281,6 +298,9 @@ function rbundle_html_table_add_row(table, dt, tr) {
     var default_row_indexes = table.find(`tbody tr`).map(function () {
         return jQuery(this).is(`.default-row`)
     })
+    var read_only_index_indexes = table.find(`tbody tr`).map(function () {
+        return jQuery(this).is(`[read-only-index]`)
+    })
 
     const row_to_add = []
     for (var th = 0; th < thead_length; th++) {
@@ -290,6 +310,7 @@ function rbundle_html_table_add_row(table, dt, tr) {
     }
     data.splice(tr + 1, 0, row_to_add)
     default_row_indexes.splice(tr + 1, 0, false)
+    read_only_index_indexes.splice(tr + 1, 0, false)
 
     // special case: index
     const index_td = tbody.indexOf(`index`)
@@ -302,6 +323,13 @@ function rbundle_html_table_add_row(table, dt, tr) {
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
     default_row_indexes.map((index, value, array) => {
         if (true === value) table.find(`tbody tr`).eq(index).addClass(`default-row`)
+    })
+    var read_only_index = 0
+    read_only_index_indexes.map((index, value, array) => {
+        if (true === value) {
+            read_only_index++
+            table.find(`tbody tr`).eq(index).attr(`read-only-index`, read_only_index)
+        }
     })
 }
 
@@ -473,6 +501,19 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
                     })
             }
         } else if (`index` === left) left = tr + 1
+        else if (`read-only-index` === left) {
+            left = target_cell.parent().attr(`read-only-index`)
+            const parent = target_cell.parent()
+            console.log(
+                tr,
+                left,
+                parent.is(`[read-only-index]`),
+                parent.attr(`read-only-index`),
+                // parent.prop(`read-only-index`),
+                // parent.data(`read-only-index`),
+                // parent.html(),
+            )// henrisusanto
+        }
 
         if (right.startsWith(`field`)) {
             const field = jQuery(`[name="item_meta[${right.replace(`field`, ``)}]"]`)
@@ -485,6 +526,13 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
                     })
             }
         } else if (`index` === right) right = tr + 1
+        else if (`read-only-index` === right) right = target_cell.parents(`tr`).attr(`read-only-index`)
+
+        if (-1 < [`greater-than`, `greater-than-equals`, `less-than`, `less-than-equals`].indexOf(operator)) {
+            left = parseInt(left)
+            right = parseInt(right)
+        }
+        // console.log(left, right, operator, left <= right)
 
         switch (operator) {
             case `equals`:
