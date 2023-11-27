@@ -282,11 +282,7 @@ function rbundle_html_table_delete_row(table, dt, tr) {
 
 function rbundle_html_table_add_row(table, dt, tr) {
     var data = dt.rows().data()
-    for (var tr = 0; tr < data.length; tr++) {
-        if (table.find(`tr`).eq(tr).is(`[henri]`)) {
-            data[tr][`henri`] = `susanto`
-        }
-    }
+    for (var txr = 0; txr < data.length; txr++) if (table.find(`tbody tr`).eq(txr).is(`[henri]`)) data[txr][`henri`] = `susanto`
     const thead_length = table.attr(`thead`).split(`,`).length
     const tbody = table.attr(`tbody`).split(`,`)
     var default_row_indexes = table.find(`tbody tr`).map(function () {
