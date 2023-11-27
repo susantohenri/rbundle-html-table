@@ -25,7 +25,6 @@ function rbundle_html_table_draw_table(table) {
             rbundle_html_table_update_tbody(thead_length, table.attr(`tbody`).split(`,`), dt, table, null)
         }
     }
-    if (table.attr('restrict-delete-default-row')) table.find(`tbody tr`).addClass(`default-row`)
 }
 
 function rbundle_html_table_update_thead(thead, dt, table) {
@@ -76,12 +75,18 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     var body = []
     for (var tr = 0; tr < row_count; tr++) {
         body[tr] = []
-        for (var td = 0; td < thead_length; td++) {
-            body[tr][td] = ``
-        }
+        for (var td = 0; td < thead_length; td++) body[tr][td] = ``
     }
     dt.clear()
     dt.rows.add(body).draw()
+
+    if (!data) {
+        if (table.attr('restrict-delete-default-row')) table.find(`tbody tr`).attr(`default-row`, true)
+    } else for (var d_idx = 0; d_idx < data.length; d_idx++) {
+        if (data[d_idx].attributes) for (var attr of data[d_idx].attributes) {
+            table.find(`tbody tr`).eq(d_idx).attr(attr.name, attr.value)
+        }
+    }
 
     for (var tr = 0; tr < row_count; tr++) {
         for (var td = 0; td < thead_length; td++) {
@@ -255,32 +260,32 @@ function rbundle_html_table_content_editable(table, dt, tr) {
 
 function rbundle_html_table_delete_row(table, dt, tr) {
     var data = dt.rows().data()
+    table.find(`tbody tr`).each(function () {
+        const idx = jQuery(this).index()
+        const atts = this.attributes
+        data[idx].attributes = atts
+    })
     const thead_length = table.attr(`thead`).split(`,`).length
     const tbody = table.attr(`tbody`).split(`,`)
-    var default_row_indexes = table.find(`tbody tr`).map(function () {
-        return jQuery(this).is(`.default-row`)
-    })
 
     data.splice(tr, 1)
-    default_row_indexes.splice(tr, 1)
 
     // special case: year index
     const year_index_td = tbody.indexOf(`current-year-dash-index`)
     data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
 
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
-    default_row_indexes.map((index, value, array) => {
-        if (true === value) table.find(`tbody tr`).eq(index).addClass(`default-row`)
-    })
 }
 
 function rbundle_html_table_add_row(table, dt, tr) {
     var data = dt.rows().data()
+    table.find(`tbody tr`).each(function () {
+        const idx = jQuery(this).index()
+        const atts = this.attributes
+        data[idx].attributes = atts
+    })
     const thead_length = table.attr(`thead`).split(`,`).length
     const tbody = table.attr(`tbody`).split(`,`)
-    var default_row_indexes = table.find(`tbody tr`).map(function () {
-        return jQuery(this).is(`.default-row`)
-    })
 
     const row_to_add = []
     for (var th = 0; th < thead_length; th++) {
@@ -289,7 +294,6 @@ function rbundle_html_table_add_row(table, dt, tr) {
         row_to_add.push(new_cell)
     }
     data.splice(tr + 1, 0, row_to_add)
-    default_row_indexes.splice(tr + 1, 0, false)
 
     // special case: index
     const index_td = tbody.indexOf(`index`)
@@ -299,10 +303,7 @@ function rbundle_html_table_add_row(table, dt, tr) {
     var year_index_td = tbody.indexOf(`current-year-dash-index`)
     if (0 < year_index_td) data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
 
-    rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
-    default_row_indexes.map((index, value, array) => {
-        if (true === value) table.find(`tbody tr`).eq(index).addClass(`default-row`)
-    })
+    rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
 }
 
 function rbundle_html_table_add_row_case_index(index_td, data) {

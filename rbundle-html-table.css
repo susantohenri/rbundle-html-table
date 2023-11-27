@@ -30,7 +30,7 @@ table.rbundle-html-table tbody td:has(> [value="+"]) {
     padding: 10px;
 }
 
-table.rbundle-html-table tbody tr.default-row i.fa-solid.fa-trash {
+table.rbundle-html-table tbody tr[default-row] i.fa-solid.fa-trash {
     display: none;
 }
 
