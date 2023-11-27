@@ -82,6 +82,9 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
 
     if (!data) {
         if (table.attr('restrict-delete-default-row')) table.find(`tbody tr`).attr(`default-row`, true)
+        table.find(`tbody tr`).each(function () {
+            jQuery(this).attr(`read-only-index`, jQuery(this).index() + 1)
+        })
     } else for (var d_idx = 0; d_idx < data.length; d_idx++) {
         if (data[d_idx].attributes) for (var attr of data[d_idx].attributes) {
             table.find(`tbody tr`).eq(d_idx).attr(attr.name, attr.value)
@@ -474,6 +477,7 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
                     })
             }
         } else if (`index` === left) left = tr + 1
+        else if (`read-only-index` === left) left = target_cell.parent().attr(`read-only-index`)
 
         if (right.startsWith(`field`)) {
             const field = jQuery(`[name="item_meta[${right.replace(`field`, ``)}]"]`)
@@ -486,6 +490,7 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
                     })
             }
         } else if (`index` === right) right = tr + 1
+        else if (`read-only-index` === right) right = target_cell.parent().attr(`read-only-index`)
 
         switch (operator) {
             case `equals`:
