@@ -438,6 +438,7 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
             value = block
             var component = [block]
         }
+        value = value.replaceAll('`', ``)
 
         // only else
         if (1 === component.length) {
