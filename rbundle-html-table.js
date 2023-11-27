@@ -65,8 +65,12 @@ function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
 
 function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     var row_count = 0
-    if (data) row_count = data.length
-    else {
+    if (data) {
+        row_count = data.length
+        console.log(data[0])
+        console.log(data[1])
+        console.log(data[2])
+    } else {
         row_count = table.attr(`row-count`)
         row_count = rbundle_html_table_custom_row_count(row_count, function () {
             rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
@@ -82,6 +86,8 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     }
     dt.clear()
     dt.rows.add(body).draw()
+    if (!data) table.find(`tr`).attr(`henri`, `susanto`)
+    else for (var tr = 0; tr < data.length; tr++) if (data[tr].henri) table.find(`tbody tr`).eq(tr).attr(`henri`, `susanto`)
 
     for (var tr = 0; tr < row_count; tr++) {
         for (var td = 0; td < thead_length; td++) {
@@ -276,6 +282,11 @@ function rbundle_html_table_delete_row(table, dt, tr) {
 
 function rbundle_html_table_add_row(table, dt, tr) {
     var data = dt.rows().data()
+    for (var tr = 0; tr < data.length; tr++) {
+        if (table.find(`tr`).eq(tr).is(`[henri]`)) {
+            data[tr][`henri`] = `susanto`
+        }
+    }
     const thead_length = table.attr(`thead`).split(`,`).length
     const tbody = table.attr(`tbody`).split(`,`)
     var default_row_indexes = table.find(`tbody tr`).map(function () {
