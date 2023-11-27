@@ -68,6 +68,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (formula.startsWith(`tax-years-field`)) { }
         else if (formula.startsWith(`dropdown:`)) { }
         else if (`index` === formula) { }
+        else if (`read-only-index` === formula) { }
         else if (`zipcode-validation` === formula) { }
         else if (`date-picker` === formula) { }
         else if (formula.indexOf(`currency-format`) > 1) { }
@@ -139,7 +140,7 @@ jQuery(`#run_reverse_formula`).click(function (event) {
                 ths = user_able_to_add_row ? ths.slice(1, -1) : ths
                 jQuery(`[name="value number of columns"]`).val(ths.length).trigger(`keyup`)
                 for (var thi = 0; thi <= ths.length; thi++) jQuery(`[name="header[]"]`).eq(thi).val(undefined == ths[thi] ? `` : ths[thi].replaceAll('`', ``)).trigger(`keyup`)
-                ; break
+                    ; break
             case `tbody`:
                 var tds = attr_value.split(`,`)
                 tds = user_able_to_add_row ? tds.slice(1, -1) : tds

@@ -219,9 +219,8 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         if (there_is_other) result += `<input type="text" class="form-control" style="height: 34px; display: none">`
     }
 
-    else if (`index` === formula) {
-        result = tr + 1
-    }
+    else if (`index` === formula) result = tr + 1
+    else if (`read-only-index` === formula) result = table.find(`tbody tr`).eq(tr).attr(`read-only-index`)
 
     dt.cell({ row: tr, column: td }).data(null === predefined ? result : predefined)
     const target_cell = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
