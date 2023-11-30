@@ -1,5 +1,8 @@
 jQuery(`table.rbundle-html-table`).each(function () {
-    rbundle_html_table_draw_table(jQuery(this))
+    const table = jQuery(this)
+    const table_id = table.attr(`id`)
+    if (!table_id || 1 < jQuery(`table#${table_id}`).length) table.attr(`id`, Math.random().toString().replace(`0.`, ``))
+    rbundle_html_table_draw_table(table)
 })
 
 function rbundle_html_table_draw_table(table) {
@@ -35,6 +38,7 @@ function rbundle_html_table_update_thead(thead, dt, table) {
 }
 
 function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
+    const table_id = table.attr(`id`)
     var result = ``
 
     // if no attribute tbody
@@ -52,8 +56,8 @@ function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
         if (field.length > 0) {
             result = field.val()
             field
-                .off(`change.rbundle_html_table_update_thead_cell`)
-                .on(`change.rbundle_html_table_update_thead_cell`, function () {
+                .off(`change.rbundle_html_table_update_thead_cell_${table_id}`)
+                .on(`change.rbundle_html_table_update_thead_cell_${table_id}`, function () {
                     rbundle_html_table_update_thead_cell(th, formula, dt, table)
                 })
         }
@@ -67,7 +71,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     if (data) row_count = data.length
     else {
         row_count = table.attr(`row-count`)
-        row_count = rbundle_html_table_custom_row_count(row_count, function () {
+        row_count = rbundle_html_table_custom_row_count(table, row_count, function () {
             rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
         })
     }
@@ -101,7 +105,8 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     rbundle_html_table_update_tbody_special_case_csv(table)
 }
 
-function rbundle_html_table_custom_row_count(row_count, redraw_body) {
+function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
+    const table_id = table.attr(`id`)
     // row-count="current-year-minus-field840" => 2023 (current year) - 2022 (input value) + 1 (include current year) = 2 row
     if (row_count.startsWith(`current-year-minus-`)) {
         var result = 0
@@ -110,8 +115,8 @@ function rbundle_html_table_custom_row_count(row_count, redraw_body) {
         if (field.length > 0) {
             result = `` === field.val() ? 0 : parseInt((new Date()).getFullYear()) - parseInt(field.val()) + 1
             field
-                .off(`change.rbundle_html_table_custom_row_count`)
-                .on(`change.rbundle_html_table_custom_row_count`, redraw_body)
+                .off(`change.rbundle_html_table_custom_row_count_${table_id}`)
+                .on(`change.rbundle_html_table_custom_row_count_${table_id}`, redraw_body)
         }
         return result
     }
@@ -134,8 +139,8 @@ function rbundle_html_table_custom_row_count(row_count, redraw_body) {
                     case `*`: result *= val; break
                 }
                 field
-                    .off(`change.rbundle_html_table_custom_row_count`)
-                    .on(`change.rbundle_html_table_custom_row_count`, redraw_body)
+                    .off(`change.rbundle_html_table_custom_row_count_${table_id}`)
+                    .on(`change.rbundle_html_table_custom_row_count_${table_id}`, redraw_body)
             }
 
             if ([`+`, `-`, `*`].indexOf(last_char) > -1) operator = last_char
@@ -145,6 +150,7 @@ function rbundle_html_table_custom_row_count(row_count, redraw_body) {
 }
 
 function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined) {
+    const table_id = table.attr(`id`)
     var result = ``
     var contenteditable = true
 
@@ -167,8 +173,8 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         if (field.length > 0) {
             if (`` === result) result = field.val()
             field
-                .off(`change.rbundle_html_table_update_tbody_cell_${tr}_${td}`)
-                .on(`change.rbundle_html_table_update_tbody_cell_${tr}_${td}`, function () {
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
                     rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
                 })
         }
@@ -198,8 +204,8 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         const field = jQuery(`[name="item_meta[${field_id}]"]`)
         if (field.length > 0) {
             field
-                .off(`change.rbundle_html_table_update_tbody_cell_${tr}_${td}`)
-                .on(`change.rbundle_html_table_update_tbody_cell_${tr}_${td}`, function () {
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
                     rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
                 })
             const value = field.val()
@@ -226,22 +232,22 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     const target_cell = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
     target_cell.attr(`contenteditable`, contenteditable)
     if (contenteditable) target_cell
-        .off(`blur.contenteditable_${tr}_${td}`)
-        .on(`blur.contenteditable_${tr}_${td}`, function () {
+        .off(`blur.contenteditable_${table_id}_${tr}_${td}`)
+        .on(`blur.contenteditable_${table_id}_${tr}_${td}`, function () {
             rbundle_html_table_content_editable(table, dt, tr)
         })
 
     // trash click event should be binded after icon created in the cell
     if (`trash` === formula) target_cell.find(`i.fa-solid.fa-trash`)
-        .off(`click.trash_${tr}_${td}`)
-        .on(`click.trash_${tr}_${td}`, function () {
+        .off(`click.trash_${table_id}_${tr}_${td}`)
+        .on(`click.trash_${table_id}_${tr}_${td}`, function () {
             rbundle_html_table_delete_row(table, dt, tr)
         })
 
     // add-row button click event should be binded after button created in the cell
     if (`add-row` === formula) target_cell.find(`input[type="button"][value="+"]`)
-        .off(`click.add_row_${tr}_${td}`)
-        .on(`click.add_row_${tr}_${td}`, function () {
+        .off(`click.add_row_${table_id}_${tr}_${td}`)
+        .on(`click.add_row_${table_id}_${tr}_${td}`, function () {
             rbundle_html_table_add_row(table, dt, tr)
         })
 
@@ -423,6 +429,7 @@ function rbundle_html_table_update_tbody_special_case_zipcode_validation(target_
 
 function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td) {
     // tbody=",,if 5 equals field4387 then `Yes` else if field4388 not-equals field4389 then field4387 else if field4389 equals `No` then 18 else field4387,,"
+    const table_id = target_cell.parents(`table`).attr(`id`)
     const blocks = formula.split(`else`)
     var matched = false
     for (var block of blocks) {
@@ -448,8 +455,8 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
                 if (field.length > 0) {
                     component[0] = field.val()
                     field
-                        .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`)
-                        .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`, () => {
+                        .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`)
+                        .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`, () => {
                             rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                         })
                 }
@@ -471,8 +478,8 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
             if (field.length > 0) {
                 left = field.val()
                 field
-                    .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`)
-                    .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`, () => {
+                    .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`)
+                    .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`, () => {
                         rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                     })
             }
@@ -484,8 +491,8 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
             if (field.length > 0) {
                 right = field.val()
                 field
-                    .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`)
-                    .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${tr}_${td}`, () => {
+                    .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`)
+                    .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`, () => {
                         rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                     })
             }
