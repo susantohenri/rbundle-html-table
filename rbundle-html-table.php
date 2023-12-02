@@ -205,6 +205,12 @@ currency-format
 if 5 equals field### then Yes else if field### not-equals field### then field### else if field### equals No then 18 else field###
 
 if 5 equals field### then Yes else field###
+
+row-count="table|#anotherTableID|row-count"
+
+tbody="table|#anotherTableID|tbody|4"
+
+thead="table|#anotherTableID|thead|1"
                                             </textarea>
                                         </p>
 
