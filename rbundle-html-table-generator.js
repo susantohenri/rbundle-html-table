@@ -74,7 +74,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (`date-picker` === formula) { }
         else if (formula.indexOf(`currency-format`) > 1) { }
         else if (formula.startsWith(`if`)) { }
-        if (formula.startsWith(`table|`)) { }
+        else if (formula.startsWith(`table|`)) { }
         else formula = '`' + formula.replaceAll('`', ``) + '`'
         atbody.push(formula)
 
