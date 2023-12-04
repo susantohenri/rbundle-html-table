@@ -55,8 +55,6 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
 
     $a_attr['class'] = 'table rbundle-html-table';
 
-    $s_attr = '';
-    foreach ($a_attr as $attr => $values) $s_attr .= "{$attr} = '{$values}'";
     wp_register_script('bootstrap', 'https://cdn.usebootstrap.com/bootstrap/3.3.7/js/bootstrap.min.js');
     wp_enqueue_script('bootstrap');
 
@@ -97,6 +95,97 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
         wp_enqueue_script('numeral');
     }
 
+    // table reference different form: begin
+    if (isset($a_attr['thead'])) {
+        if (-1 < strpos($a_attr['thead'], 'table|')) {
+            $a_theads = explode(',', $a_attr['thead']);
+            for ($th = 0; $th < count($a_theads); $th++) {
+                if (str_starts_with($a_theads[$th], 'table|')) {
+                    $formula = explode('|', $a_theads[$th]);
+
+                    $s_target_table_id = $formula[1];
+                    global $wpdb;
+                    $s_target_table = $wpdb->get_var($wpdb->prepare("SELECT `description` FROM {$wpdb->prefix}frm_fields WHERE `description` LIKE %s", '%id="' . $s_target_table_id . '"%'));
+                    if ($s_target_table) {
+                        $s_target_table_attr_name = $formula[2];
+                        if (-1 < strpos($s_target_table, "{$s_target_table_attr_name}=")) {
+                            $a_target_parse = explode("{$s_target_table_attr_name}=\"", $s_target_table);
+                            $a_target_parse = explode('"', $a_target_parse[1]);
+                            $s_target_table_attr_value = $a_target_parse[0];
+
+                            if ('row-count' === $s_target_table_attr_name) $a_theads[$th] = $s_target_table_attr_value;
+                            else {
+                                $s_target_table_attr_value_index = $formula[3];
+                                $a_target_table_attr_values = explode(',', $s_target_table_attr_value);
+                                if ($a_target_table_attr_values[$s_target_table_attr_value_index]) $a_theads[$th] = $a_target_table_attr_values[$s_target_table_attr_value_index];
+                            }
+                            $a_attr['thead'] = implode(',', $a_theads);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (isset($a_attr['row-count'])) {
+        if (-1 < strpos($a_attr['row-count'], 'table|')) {
+            $formula = explode('|', $a_attr['row-count']);
+
+            $s_target_table_id = $formula[1];
+            global $wpdb;
+            $s_target_table = $wpdb->get_var($wpdb->prepare("SELECT `description` FROM {$wpdb->prefix}frm_fields WHERE `description` LIKE %s", '%id="' . $s_target_table_id . '"%'));
+            if ($s_target_table) {
+                $s_target_table_attr_name = $formula[2];
+                if (-1 < strpos($s_target_table, "{$s_target_table_attr_name}=")) {
+                    $a_target_parse = explode("{$s_target_table_attr_name}=\"", $s_target_table);
+                    $a_target_parse = explode('"', $a_target_parse[1]);
+                    $s_target_table_attr_value = $a_target_parse[0];
+
+                    if ('row-count' === $s_target_table_attr_name) $a_attr['row-count'] = $s_target_table_attr_value;
+                    else {
+                        $s_target_table_attr_value_index = $formula[3];
+                        $a_target_table_attr_values = explode(',', $s_target_table_attr_value);
+                        if ($a_target_table_attr_values[$s_target_table_attr_value_index]) $a_attr['row-count'] = $a_target_table_attr_values[$s_target_table_attr_value_index];
+                    }
+                }
+            }
+        }
+    }
+
+    if (isset($a_attr['tbody'])) {
+        if (-1 < strpos($a_attr['tbody'], 'table|')) {
+            $a_tbodies = explode(',', $a_attr['tbody']);
+            for ($td = 0; $td < count($a_tbodies); $td++) {
+                if (str_starts_with($a_tbodies[$td], 'table|')) {
+                    $formula = explode('|', $a_tbodies[$td]);
+
+                    $s_target_table_id = $formula[1];
+                    global $wpdb;
+                    $s_target_table = $wpdb->get_var($wpdb->prepare("SELECT `description` FROM {$wpdb->prefix}frm_fields WHERE `description` LIKE %s", '%id="' . $s_target_table_id . '"%'));
+                    if ($s_target_table) {
+                        $s_target_table_attr_name = $formula[2];
+                        if (-1 < strpos($s_target_table, "{$s_target_table_attr_name}=")) {
+                            $a_target_parse = explode("{$s_target_table_attr_name}=\"", $s_target_table);
+                            $a_target_parse = explode('"', $a_target_parse[1]);
+                            $s_target_table_attr_value = $a_target_parse[0];
+
+                            if ('row-count' === $s_target_table_attr_name) $a_tbodies[$td] = $s_target_table_attr_value;
+                            else {
+                                $s_target_table_attr_value_index = $formula[3];
+                                $a_target_table_attr_values = explode(',', $s_target_table_attr_value);
+                                if ($a_target_table_attr_values[$s_target_table_attr_value_index]) $a_tbodies[$td] = $a_target_table_attr_values[$s_target_table_attr_value_index];
+                            }
+                            $a_attr['tbody'] = implode(',', $a_tbodies);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // table reference different form: end
+
+    $s_attr = '';
+    foreach ($a_attr as $attr => $values) $s_attr .= "{$attr} = '{$values}'";
     return "<table {$s_attr}></table>";
 });
 
