@@ -63,7 +63,7 @@ function rbundle_html_table_generate_shortcode() {
         else formula = '`' + formula.replaceAll('`', ``) + '`'
         athead.push(formula)
 
-        formula = jQuery(`.number-of-columns`).find(`[name="body[]"]`).eq(col).val()
+        formula = jQuery(`.number-of-columns`).find(`[name="body[]"]`).eq(col).val().trim()
         if (formula.startsWith(`field`)) { }
         else if (`current-year-dash-index` === formula) { }
         else if (formula.startsWith(`tax-years-field`)) { }
@@ -75,6 +75,8 @@ function rbundle_html_table_generate_shortcode() {
         else if (formula.indexOf(`currency-format`) > 1) { }
         else if (formula.startsWith(`if`)) { }
         else if (formula.startsWith(`table|`)) { }
+        else if (`current-year` === formula) { }
+        else if (formula.startsWith(`current-year-minus-`)) { }
         else formula = '`' + formula.replaceAll('`', ``) + '`'
         atbody.push(formula)
 

@@ -265,6 +265,12 @@ add_action('admin_menu', function () {
                                             <b>Value Library</b>
                                             <br>
                                             <textarea style="width: 100%;" rows="5" disabled>
+current-year
+
+current-year-minus-1
+
+field###-slash-current-year
+
 current-year-minus-field###
 
 field###+field###-field###*field###
@@ -293,7 +299,7 @@ currency-format
 
 if 5 equals field### then Yes else if field### not-equals field### then field### else if field### equals No then 18 else field###
 
-if 5 equals field### then Yes else field###
+if 5 equals index-minus-1 then Yes else field###
 
 row-count="table|#anotherTableID|row-count"
 

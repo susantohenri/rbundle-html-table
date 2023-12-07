@@ -168,6 +168,25 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         if (`` === result) result = formula.substring(1, formula.length - 1)
     }
 
+    // tbody=",,current-year,,"
+    else if (`current-year` === formula) {
+        result = parseInt((new Date()).getFullYear())
+        contenteditable = false
+    }
+
+    // tbody=",,field###-slash-current-year,,"
+    else if (formula.startsWith(`field`) && formula.endsWith(`-slash-current-year`)) {
+        const field = jQuery(`[name="item_meta[${formula.replace(`field`, ``).replace(`-slash-current-year`, ``)}]"]`)
+        if (field.length > 0) {
+            if (`` === result) result = field.val() + `/` + parseInt((new Date()).getFullYear())
+            field
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+        }
+    }
+
     // tbody=",,field1243,,"
     else if (formula.startsWith(`field`)) {
         const field = jQuery(`[name="item_meta[${formula.replace(`field`, ``)}]"]`)
@@ -190,6 +209,18 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     // tbody=",,add-row,,"
     else if (`add-row` === formula) {
         if (`` === result) result = `<input type="button" value="+">`
+        contenteditable = false
+    }
+
+    // tbody=",,current-year,,"
+    else if (`current-year` === formula) {
+        result = parseInt((new Date()).getFullYear())
+        contenteditable = false
+    }
+
+    // tbody=",,current-year-minus-12,,"
+    else if (formula.startsWith(`current-year-minus-`)) {
+        result = parseInt((new Date()).getFullYear()) - parseInt(formula.replace(`current-year-minus-`, ``))
         contenteditable = false
     }
 
@@ -440,10 +471,12 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
 
         if (-1 < block.indexOf(`then`)) {
             value = block.split(`then`)[1].trim()
+            if (value.startsWith(`index-minus-`)) value = (tr + 1 - parseInt(value.replace(`index-minus-`, ``))).toString()
             var component = block.replace(value, ``).trim().split(` `)
             component.push(value)
         } else {
             value = block
+            if (value.startsWith(`index-minus-`)) value = (tr + 1 - parseInt(value.replace(`index-minus-`, ``))).toString()
             var component = [block]
         }
         value = value.replaceAll('`', ``)
@@ -574,7 +607,7 @@ function rbundle_html_table_attribute_reference(table) {
                             var target_attr_value = target_table.attr(target_attr)
                             if (target_attr_value) {
                                 var target_attr_values = target_attr_value.split(`,`)
-                                var value = target_attr_values[target_attr_index -1]
+                                var value = target_attr_values[target_attr_index - 1]
                                 if (value) theads[th] = value
                             }
                         }
@@ -599,7 +632,7 @@ function rbundle_html_table_attribute_reference(table) {
                     var target_attr_value = target_table.attr(target_attr)
                     if (target_attr_value) {
                         var target_attr_values = target_attr_value.split(`,`)
-                        var value = target_attr_values[target_attr_index -1]
+                        var value = target_attr_values[target_attr_index - 1]
                         if (value) row_count = value
                     }
                 }
@@ -625,7 +658,7 @@ function rbundle_html_table_attribute_reference(table) {
                             var target_attr_value = target_table.attr(target_attr)
                             if (target_attr_value) {
                                 var target_attr_values = target_attr_value.split(`,`)
-                                var value = target_attr_values[target_attr_index -1]
+                                var value = target_attr_values[target_attr_index - 1]
                                 if (value) tbodies[th] = value
                             }
                         }
