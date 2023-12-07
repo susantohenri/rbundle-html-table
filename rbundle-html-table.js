@@ -330,7 +330,7 @@ function rbundle_html_table_add_row(table, dt, tr) {
     const row_to_add = []
     for (var th = 0; th < thead_length; th++) {
         var new_cell = ``
-        if ([`add-row`, `trash`].indexOf(tbody[th]) > -1 || tbody[th].indexOf(`dropdown:`) > -1 || `index` === tbody[th]) new_cell = null// fallback to tbody formula
+        if ([`add-row`, `trash`].indexOf(tbody[th]) > -1 || tbody[th].indexOf(`dropdown:`) > -1 || `index` === tbody[th] || tbody[th].startsWith(`field`)) new_cell = null// fallback to tbody formula
         row_to_add.push(new_cell)
     }
     data.splice(tr + 1, 0, row_to_add)
