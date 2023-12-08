@@ -249,8 +249,15 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     // tbody=",,dropdown:option-1|option 2|option3,,"
     else if (formula.startsWith(`dropdown:`)) {
         var there_is_other = false
-        const options = formula.slice(9).split(`|`).map(option => {
+        const options = formula.slice(9).split(`|`).map((option, option_index) => {
             if (`other` === option) there_is_other = true
+            if (option.startsWith(`field`)) {
+                const field = jQuery(`[name="item_meta[${option.replace(`field`, ``)}]"]`)
+                if (field.length > 0) {
+                    option = field.val()
+                    rbundle_html_table_case_dropdown_option_field_value(table, tr, td, option_index, field)
+                }
+            }
             return `<option value="${option}">${option}</option>`
         }).join(``)
         result = `<select>${options}</select>`
@@ -668,4 +675,15 @@ function rbundle_html_table_attribute_reference(table) {
         }
         table.attr(`tbody`, tbodies.join(`,`))
     }
+}
+
+function rbundle_html_table_case_dropdown_option_field_value(table, tr, td, option_index, field) {
+    const table_id = table.attr(`id`)
+    const evt = `change.rbundle_html_table_case_dropdown_option_field_value_${table_id}_${tr}_${td}_${option_index}`
+    field.off(evt).on(evt, function () {
+        const val = field.val()
+        const target = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td).find(`option`).eq(option_index)
+        target.prop(`value`, val)
+        target.html(val)
+    })
 }
