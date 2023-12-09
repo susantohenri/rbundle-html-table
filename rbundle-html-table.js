@@ -264,6 +264,23 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         if (there_is_other) result += `<input type="text" class="form-control" style="height: 34px; display: none">`
     }
 
+    // tbody=",,today-tax-year-by-field238,,"
+    else if (formula.startsWith(`today-tax-year-by-field`)) {
+        const field_id = formula.replace(`today-tax-year-by-field`, ``)
+        const field = jQuery(`[name="item_meta[${field_id}]"]`)
+        if (field.length > 0) {
+            field
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+            const end_of_month = field.val()
+            const current_year = parseInt((new Date()).getFullYear())
+            const year_to_show = new Date(`${end_of_month}/${current_year}`).getTime() <= new Date().getTime() ? current_year + 1 : current_year
+            if (`` === result) result = `${end_of_month}/${year_to_show}`
+        }
+    }
+
     else if (`index` === formula) result = tr + 1
     else if (`read-only-index` === formula) result = table.find(`tbody tr`).eq(tr).attr(`read-only-index`)
 

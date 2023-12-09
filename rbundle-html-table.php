@@ -267,19 +267,21 @@ add_action('admin_menu', function () {
                                             <textarea style="width: 100%;" rows="5" disabled>
 current-year
 
-current-year-minus-1
-
-field###-slash-current-year
+current-year-minus-## (usage: current-year-minus-3)
 
 current-year-minus-field###
 
-field###+field###-field###*field###
+current-year-dash-index
+
+field###-slash-current-year
+
+tax-years-field### (will show: 12/31 dash current year minus index)
+
+today-tax-year-by-field### (will show: if field###/current-year < today then field###/current-year-plus-1 else field###/current-year)
 
 field###
 
-tax-years-field###
-
-current-year-dash-index
+field###+field###-field###*field###
 
 date-picker
 

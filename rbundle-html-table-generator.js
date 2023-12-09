@@ -77,6 +77,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (formula.startsWith(`table|`)) { }
         else if (`current-year` === formula) { }
         else if (formula.startsWith(`current-year-minus-`)) { }
+        else if (formula.startsWith(`today-tax-year-by-field`)) { }
         else formula = '`' + formula.replaceAll('`', ``) + '`'
         atbody.push(formula)
 
