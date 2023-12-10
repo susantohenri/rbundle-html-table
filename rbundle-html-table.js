@@ -109,9 +109,9 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
 function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
     const table_id = table.attr(`id`)
     // row-count="current-year-minus-field840" => 2023 (current year) - 2022 (input value) + 1 (include current year) = 2 row
-    if (row_count.startsWith(`current-year-minus-`)) {
+    if (row_count.startsWith(`current-year-minus-field`)) {
         var result = 0
-        const field_id = row_count.replace(`current-year-minus-`, ``).replace(`field`, ``)
+        const field_id = row_count.replace(`current-year-minus-field`, ``)
         const field = jQuery(`[name="item_meta[${field_id}]"]`)
         if (field.length > 0) {
             result = `` === field.val() ? 0 : parseInt((new Date()).getFullYear()) - parseInt(field.val()) + 1
@@ -218,6 +218,22 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         contenteditable = false
     }
 
+    // tbody=",,current-year-minus-field238,,"
+    else if (formula.startsWith(`current-year-minus-field`)) {// henrisusanto
+        const field_id = formula.replace(`current-year-minus-field`, ``)
+        const field = jQuery(`[name="item_meta[${field_id}]"]`)
+        if (field.length > 0) {
+            field
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+            const value = field.val()
+            const current_year = parseInt((new Date()).getFullYear())
+            if (`` === result) result = current_year - value
+        }
+    }
+
     // tbody=",,current-year-minus-12,,"
     else if (formula.startsWith(`current-year-minus-`)) {
         result = parseInt((new Date()).getFullYear()) - parseInt(formula.replace(`current-year-minus-`, ``))
@@ -274,10 +290,20 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
                 .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
                     rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
                 })
-            const end_of_month = field.val()
+            var end_of_month = field.val()
+            if (`Other` === end_of_month) {
+                const other = jQuery(`input[name="item_meta[other][${field_id}]"]`)
+                other
+                    .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                    .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                        rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                    })
+                end_of_month = other.val()
+            }
             const current_year = parseInt((new Date()).getFullYear())
             const year_to_show = new Date(`${end_of_month}/${current_year}`).getTime() <= new Date().getTime() ? current_year + 1 : current_year
-            if (`` === result) result = `${end_of_month}/${year_to_show}`
+            const result_to_show = `${end_of_month}/${year_to_show}`
+            if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
         }
     }
 
@@ -496,11 +522,13 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
         if (-1 < block.indexOf(`then`)) {
             value = block.split(`then`)[1].trim()
             if (value.startsWith(`index-minus-`)) value = (tr + 1 - parseInt(value.replace(`index-minus-`, ``))).toString()
+            else if (`current-year-dash-index` === value) value = (new Date()).getFullYear() + `-` + (tr + 1)
             var component = block.replace(value, ``).trim().split(` `)
             component.push(value)
         } else {
             value = block
             if (value.startsWith(`index-minus-`)) value = (tr + 1 - parseInt(value.replace(`index-minus-`, ``))).toString()
+            else if (`current-year-dash-index` === value) value = (new Date()).getFullYear() + `-` + (tr + 1)
             var component = [block]
         }
         value = value.replaceAll('`', ``)
