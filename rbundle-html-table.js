@@ -174,6 +174,25 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         contenteditable = false
     }
 
+    // tbody=",,field###-slash-current-year-minus-index,,"
+    else if (formula.startsWith(`field`) && formula.endsWith(`-slash-current-year-minus-index`)) {
+        const field = jQuery(`[name="item_meta[${formula.replace(`field`, ``).replace(`-slash-current-year-minus-index`, ``)}]"]`)
+        if (field.length > 0) {
+            if (`` === result) {
+                const field_value = field.val()
+                const current_year = parseInt(new Date().getFullYear())
+                const index = parseInt(tr) + 1
+                const current_year_minus_index = current_year - index
+                result = `${field_value}/${current_year_minus_index}`
+            }
+            field
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+        }
+    }
+
     // tbody=",,field###-slash-current-year,,"
     else if (formula.startsWith(`field`) && formula.endsWith(`-slash-current-year`)) {
         const field = jQuery(`[name="item_meta[${formula.replace(`field`, ``).replace(`-slash-current-year`, ``)}]"]`)

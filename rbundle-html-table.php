@@ -275,6 +275,8 @@ current-year-dash-index
 
 field###-slash-current-year
 
+field###-slash-current-year-minus-index
+
 tax-years-field### (will show: 12/31 dash current year minus index)
 
 today-tax-year-by-field### (will show: if field###/current-year < today then field###/current-year-plus-1 else field###/current-year)
