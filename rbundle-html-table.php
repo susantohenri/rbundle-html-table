@@ -295,6 +295,8 @@ index
 
 index-read-only
 
+n/a-read-only
+
 dropdown:option-1|option 2|option3
 
 dropdown:|option-1|option 2 <== without initial value

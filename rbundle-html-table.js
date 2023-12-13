@@ -174,6 +174,12 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         contenteditable = false
     }
 
+    // tbody=",,n/a-read-only,,"
+    else if (`n/a-read-only` === formula) {
+        result = `N/A`
+        contenteditable = false
+    }
+
     // tbody=",,field###-slash-current-year-minus-index,,"
     else if (formula.startsWith(`field`) && formula.endsWith(`-slash-current-year-minus-index`)) {
         const field = jQuery(`[name="item_meta[${formula.replace(`field`, ``).replace(`-slash-current-year-minus-index`, ``)}]"]`)
