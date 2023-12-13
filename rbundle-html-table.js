@@ -325,6 +325,34 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
             if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
         }
     }
+
+    // tbody=",,today-tax-year-minus-index-by-field238,,"
+    else if (formula.startsWith(`today-tax-year-minus-index-by-field`)) {
+        const field_id = formula.replace(`today-tax-year-minus-index-by-field`, ``)
+        const field = jQuery(`[name="item_meta[${field_id}]"]`)
+        if (field.length > 0) {
+            field
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+            var end_of_month = field.val()
+            if (`Other` === end_of_month) {
+                const other = jQuery(`input[name="item_meta[other][${field_id}]"]`)
+                other
+                    .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                    .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                        rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                    })
+                end_of_month = other.val()
+            }
+            const current_year = parseInt((new Date()).getFullYear())
+            var year_to_show = new Date(`${end_of_month}/${current_year}`).getTime() <= new Date().getTime() ? current_year + 1 : current_year
+            year_to_show -= parseInt(tr) + 1
+            const result_to_show = `${end_of_month}/${year_to_show}`
+            if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
+        }
+    }
     else if (`TY-dash-index` === formula) {
         result = `TY - ` + parseInt(tr + 1)
     }

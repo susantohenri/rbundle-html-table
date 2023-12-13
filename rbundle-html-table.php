@@ -281,6 +281,8 @@ tax-years-field### (will show: 12/31 dash current year minus index)
 
 today-tax-year-by-field### (will show: if field###/current-year < today then field###/current-year-plus-1 else field###/current-year)
 
+today-tax-year-minus-index-by-field### (will show like above but the year number will be deducted by row number)
+
 TY-dash-index (will show: TY-2)
 
 field###
