@@ -283,6 +283,8 @@ today-tax-year-by-field### (will show: if field###/current-year < today then fie
 
 today-tax-year-minus-index-by-field### (will show like above but the year number will be deducted by row number)
 
+fed-tax-dl-hidden-value-field###-month-date-field###
+
 TY-dash-index (will show: TY-2)
 
 field###

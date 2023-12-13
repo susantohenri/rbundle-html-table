@@ -362,6 +362,41 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     else if (`TY-dash-index` === formula) {
         result = `TY - ` + parseInt(tr + 1)
     }
+    else if (formula.startsWith(`fed-tax-dl-hidden-value-field`)) {
+        const parsed_formula = formula.split(`-month-date-field`)
+        const month_date_field = jQuery(`[name="item_meta[${parsed_formula[1]}]"]`)
+        const dropdown_field_id = jQuery(`[name="item_meta[${parsed_formula[0].replace(`fed-tax-dl-hidden-value-field`, ``)}]"]`)
+
+        const month_date = month_date_field.val()
+        const current_year = parseInt((new Date()).getFullYear())
+        const index = parseInt(tr) + 1
+        const year_to_show = current_year - index + 1
+        var date_to_show = new Date(`${month_date}/${year_to_show}`)
+        const days_to_add = 15
+        var months_to_add = 2
+
+        date_to_show.setDate(date_to_show.getDate() + days_to_add)
+        switch (dropdown_field_id.val()) {
+            case `Pass-Through`: months_to_add = 2; break
+            case `Taxable`: months_to_add = 3; break
+            case `Exempt`: months_to_add = 4; break
+        }
+        date_to_show.setMonth(date_to_show.getMonth() + months_to_add)
+        if (0 === date_to_show.getDate()) date_to_show.setDate(date_to_show.getDate() + 1)// sunday
+        if (6 === date_to_show.getDate()) date_to_show.setDate(date_to_show.getDate() + 2)// saturday
+        result = `` !== result ? result : date_to_show.toLocaleDateString()
+
+        month_date_field
+            .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+            .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+            })
+        dropdown_field_id
+            .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+            .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+            })
+    }
 
     else if (`index` === formula) result = tr + 1
     else if (`read-only-index` === formula) result = table.find(`tbody tr`).eq(tr).attr(`read-only-index`)
