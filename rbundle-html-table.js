@@ -306,6 +306,9 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
             if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
         }
     }
+    else if (`TY-dash-index` === formula) {
+        result = `TY - ` + parseInt(tr + 1)
+    }
 
     else if (`index` === formula) result = tr + 1
     else if (`read-only-index` === formula) result = table.find(`tbody tr`).eq(tr).attr(`read-only-index`)
@@ -518,18 +521,25 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
         if (matched) continue;
         block = block.trim()
         var value = ``
+        var component = []
 
         if (-1 < block.indexOf(`then`)) {
-            value = block.split(`then`)[1].trim()
+            const block_split = block.split(` then`)
+            value = block_split[1].trim()
+            component = block_split[0].split(` `)
+
             if (value.startsWith(`index-minus-`)) value = (tr + 1 - parseInt(value.replace(`index-minus-`, ``))).toString()
             else if (`current-year-dash-index` === value) value = (new Date()).getFullYear() + `-` + (tr + 1)
-            var component = block.replace(value, ``).trim().split(` `)
+            else if (`TY-dash-index` === value) value = `TY - ` + (tr + 1)
+
+            component.push(`then`)
             component.push(value)
         } else {
             value = block
             if (value.startsWith(`index-minus-`)) value = (tr + 1 - parseInt(value.replace(`index-minus-`, ``))).toString()
             else if (`current-year-dash-index` === value) value = (new Date()).getFullYear() + `-` + (tr + 1)
-            var component = [block]
+            else if (`TY-dash-index` === value) value = `TY - ` + (tr + 1)
+            component = [block]
         }
         value = value.replaceAll('`', ``)
 
