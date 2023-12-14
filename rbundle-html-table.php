@@ -74,7 +74,7 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
     $load_numeral = false;
     if (isset($a_attr['tbody'])) {
         $tbody_datepicker = array_filter(explode(',', $a_attr['tbody']), function ($td) {
-            return 'date-picker' === $td;
+            return strpos($td, 'date-picker') > -1;
         });
         $load_datepicker = $load_datepicker || count($tbody_datepicker) > 0;
 
@@ -298,6 +298,8 @@ index
 index-read-only
 
 n/a-read-only
+
+dropdown-column-#
 
 dropdown:option-1|option 2|option3
 
