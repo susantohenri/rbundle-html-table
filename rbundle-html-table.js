@@ -609,7 +609,7 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
 
         left = rbundle_html_table_if_else_bind_side(left, table_id, tr, td, target_cell, formula)
         right = rbundle_html_table_if_else_bind_side(right, table_id, tr, td, target_cell, formula)
-        value = rbundle_html_table_if_else_translate_value(value);
+        value = rbundle_html_table_if_else_translate_value(value, tr)
 
         switch (operator) {
             case `equals`:
@@ -737,6 +737,9 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             const column = jQuery(`table#${table_id}`).find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(col_num)
 
             side = column.html()
+            if (3 === side.split(`/`).length) {
+                side = (new Date(side)).getTime()
+            }
             column
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, function () {
