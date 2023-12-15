@@ -359,8 +359,14 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
             if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
         }
     }
+    else if (formula.startsWith(`TY-dash-index-minus-`)) {
+        const num = formula.replace(`TY-dash-index-minus-`, ``)
+        const index = parseInt(tr) + 1
+        const index_minus_num = index - parseInt(num)
+        result = `` !== result ? result : `TY - ${index_minus_num}`
+    }
     else if (`TY-dash-index` === formula) {
-        result = `TY - ` + parseInt(tr + 1)
+        result = `` !== result ? result : `TY - ` + parseInt(tr + 1)
     }
     else if (formula.startsWith(`fed-tax-dl-hidden-value-field`)) {
         result = `` !== result ? result : rbundle_html_table_fed_tax(table, tr, td, dt, predefined)
@@ -667,6 +673,12 @@ function rbundle_html_table_if_else_translate_value(value, tr) {
     if (value.startsWith(`index-minus-`)) value = (tr + 1 - parseInt(value.replace(`index-minus-`, ``))).toString()
     else if (`current-year-dash-index` === value) value = (new Date()).getFullYear() + `-` + (tr + 1)
     else if (`TY-dash-index` === value) value = `TY - ` + (tr + 1)
+    else if (value.startsWith(`TY-dash-index-minus-`)) {
+        const num = value.replace(`TY-dash-index-minus-`, ``)
+        const index = parseInt(tr) + 1
+        const index_minus_num = index - parseInt(num)
+        value = `TY - ${index_minus_num}`
+    }
     return value
 }
 

@@ -287,6 +287,8 @@ fed-tax-dl-hidden-value-field###-month-date-field###
 
 TY-dash-index (will show: TY-2)
 
+TY-dash-index-minus-# (usage example: TY-dash-index-minus-3 will show: TY-4 in row 7)
+
 field###
 
 field###+field###-field###*field###

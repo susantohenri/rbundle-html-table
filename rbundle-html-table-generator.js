@@ -80,6 +80,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (formula.startsWith(`today-tax-year-by-field`)) { }
         else if (formula.startsWith(`today-tax-year-minus-index-by-field`)) { }
         else if (`TY-dash-index` === formula) { }
+        else if (formula.startsWith(`TY-dash-index-minus-`)) { }
         else if (`n/a-read-only` === formula) { }
         else if (formula.startsWith(`fed-tax-dl-hidden-value-field`)) { }
         else formula = '`' + formula.replaceAll('`', ``) + '`'
