@@ -78,7 +78,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (`current-year` === formula) { }
         else if (formula.startsWith(`current-year-minus-`)) { }
         else if (formula.startsWith(`today-tax-year-by-field`)) { }
-        else if (formula.startsWith(`today-tax-year-minus-index-by-field`)) { }
+        else if (formula.startsWith(`tax-year-end-by-field`)) { }
         else if (`TY-dash-index` === formula) { }
         else if (formula.startsWith(`TY-dash-index-minus-`)) { }
         else if (`n/a-read-only` === formula) { }

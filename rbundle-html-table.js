@@ -332,9 +332,9 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         }
     }
 
-    // tbody=",,today-tax-year-minus-index-by-field238,,"
-    else if (formula.startsWith(`today-tax-year-minus-index-by-field`)) {
-        const field_id = formula.replace(`today-tax-year-minus-index-by-field`, ``)
+    // tbody=",,tax-year-end-by-field###,,"
+    else if (formula.startsWith(`tax-year-end-by-field`)) {
+        const field_id = formula.replace(`tax-year-end-by-field`, ``)
         const field = jQuery(`[name="item_meta[${field_id}]"]`)
         if (field.length > 0) {
             field
@@ -354,7 +354,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
             }
             const current_year = parseInt((new Date()).getFullYear())
             var year_to_show = new Date(`${end_of_month}/${current_year}`).getTime() <= new Date().getTime() ? current_year + 1 : current_year
-            year_to_show -= parseInt(tr) + 1
+            year_to_show -= parseInt(tr)
             const result_to_show = `${end_of_month}/${year_to_show}`
             if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
         }
