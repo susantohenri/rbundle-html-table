@@ -371,16 +371,32 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     else if (formula.startsWith(`fed-tax-dl-hidden-value-field`)) {
         result = `` !== result ? result : rbundle_html_table_fed_tax(table, tr, td, dt, predefined)
     }
+    else if (formula.startsWith(`column-`)) {
+        var col_num = formula.replace(`column-`, ``)
+        col_num = parseInt(col_num) - 1
+        if (col_num !== td) {
+            const column = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(col_num)
+
+            if (`` === result) result = column.html()
+            column
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+        }
+    }
 
     else if (`index` === formula) result = tr + 1
     else if (`read-only-index` === formula) result = table.find(`tbody tr`).eq(tr).attr(`read-only-index`)
 
     dt.cell({ row: tr, column: td }).data(null === predefined ? result : predefined)
     const target_cell = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
+    target_cell.trigger(`change`)
     target_cell.attr(`contenteditable`, contenteditable)
     if (contenteditable) target_cell
         .off(`blur.contenteditable_${table_id}_${tr}_${td}`)
         .on(`blur.contenteditable_${table_id}_${tr}_${td}`, function () {
+            target_cell.trigger(`change`)
             rbundle_html_table_content_editable(table, dt, tr)
         })
 
@@ -510,6 +526,7 @@ function rbundle_html_table_update_tbody_special_case_datepicker(target, tr, td)
         input.datepicker({ autoclose: true, endDate: `today` })
         input.datepicker().off(`changeDate`).on(`changeDate`, function (e) {
             target.html(e.format(0, `mm/dd/yyyy`))
+            target.trigger(`change`)
         })
     })
     target.blur(() => {
@@ -690,14 +707,15 @@ function rbundle_html_table_if_else_translate_value(value, tr) {
 }
 
 function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cell, formula) {
+    const if_else_event = `rxbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`
     if (true === side) return side
     else if (side.startsWith(`field`)) {
         const field = jQuery(`[name="item_meta[${side.replace(`field`, ``)}]"]`)
         if (field.length > 0) {
             side = field.val()
             field
-                .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`)
-                .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`, () => {
+                .off(`change.${if_else_event}`)
+                .on(`change.${if_else_event}`, () => {
                     rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                 })
         }
@@ -708,10 +726,23 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
         const field = target_cell.parent().find(`td`).eq(col_num).find(`select`)
         side = field.val()
         field
-            .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`)
-            .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`, () => {
+            .off(`change.${if_else_event}`)
+            .on(`change.${if_else_event}`, () => {
                 rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
             })
+    } else if (side.startsWith(`column-`)) {
+        var col_num = side.replace(`column-`, ``)
+        col_num = parseInt(col_num) - 1
+        if (col_num !== td) {
+            const column = jQuery(`table#${table_id}`).find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(col_num)
+
+            side = column.html()
+            column
+                .off(`change.${if_else_event}`)
+                .on(`change.${if_else_event}`, function () {
+                    rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                })
+        }
     }
     return side
 }
@@ -726,6 +757,7 @@ function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td) {
         target_cell.attr(`contenteditable`, false)
     }
     target_cell.html(value)
+    target_cell.trigger(`change`)
 }
 
 function rbundle_html_table_show_error(target, error_message) {

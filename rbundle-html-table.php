@@ -301,6 +301,8 @@ index-read-only
 
 n/a-read-only
 
+column-#
+
 dropdown-column-#
 
 dropdown:option-1|option 2|option3
