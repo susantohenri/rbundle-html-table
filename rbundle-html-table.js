@@ -587,47 +587,12 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
     var matched = false
     for (var block of blocks) {
         if (matched) continue;
-        block = block.trim()
-        var value = ``
-        var component = []
+        var { left, operator, right, value, error } = rbundle_html_table_if_else_parse_block(block)
+        if (error) continue;
 
-        if (-1 < block.indexOf(`then`)) {
-            const block_split = block.split(` then`)
-            value = rbundle_html_table_if_else_translate_value(block_split[1].trim(), tr)
-            component = block_split[0].split(` `)
-            component.push(`then`)
-            component.push(value)
-        } else {
-            value = rbundle_html_table_if_else_translate_value(block, tr)
-            component = [block]
-        }
-        value = value.replaceAll('`', ``)
-
-        // only else
-        if (1 === component.length) {
-            matched = true
-            if (component[0].startsWith(`field`)) {
-                const field = jQuery(`[name="item_meta[${component[0].replace(`field`, ``)}]"]`)
-                if (field.length > 0) {
-                    component[0] = field.val()
-                    field
-                        .off(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`)
-                        .on(`change.rbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`, () => {
-                            rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
-                        })
-                }
-            }
-            rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
-        }
-
-        if (6 !== component.length) continue;// incorrect formula
-        if (`if` !== component[0]) continue;
-        if (0 > [`equals`, `not-equals`, `greater-than`, `greater-than-equals`, `less-than`, `less-than-equals`].indexOf(component[2])) continue;
-        if (`then` !== component[4]) continue;
-
-        var left = rbundle_html_table_if_else_translate_side(component[1], table_id, tr, td, target_cell, formula)
-        const operator = component[2]
-        var right = rbundle_html_table_if_else_translate_side(component[3], table_id, tr, td, target_cell, formula)
+        left = rbundle_html_table_if_else_bind_side(left, table_id, tr, td, target_cell, formula)
+        right = rbundle_html_table_if_else_bind_side(right, table_id, tr, td, target_cell, formula)
+        value = rbundle_html_table_if_else_translate_value(value);
 
         switch (operator) {
             case `equals`:
@@ -669,6 +634,48 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
     }
 }
 
+function rbundle_html_table_if_else_parse_block(block) {
+    var left = true
+    var operator = `equals`
+    var right = true
+    var value = ``
+    var error = false
+
+    try {
+        block = block.trim()
+        if (0 > block.indexOf(`then`)) { // else
+            value = block
+        } else {
+            for (var op of [`equals`, `not-equals`, `greater-than`, `greater-than-equals`, `less-than`, `less-than-equals`]) {
+                if (-1 < block.indexOf(op)) {
+                    operator = op
+                    left = block.split(`if `)
+                    left = left[1]
+                    left = left.split(operator)
+                    left = left[0]
+                    left = left.trim()
+
+                    right = block.split(operator)
+                    right = right[1]
+                    right = right.split(`then`)
+                    right = right[0]
+                    right = right.trim()
+
+                    value = block.split(`then`)
+                    value = value[1]
+                    value = value.trim()
+                    value = value.replaceAll('`', ``)
+                }
+            }
+        }
+    } catch (e) {
+        console.error(block, e)
+        error = true
+    }
+
+    return { left, operator, right, value, error }
+}
+
 function rbundle_html_table_if_else_translate_value(value, tr) {
     if (value.startsWith(`index-minus-`)) value = (tr + 1 - parseInt(value.replace(`index-minus-`, ``))).toString()
     else if (`current-year-dash-index` === value) value = (new Date()).getFullYear() + `-` + (tr + 1)
@@ -682,8 +689,9 @@ function rbundle_html_table_if_else_translate_value(value, tr) {
     return value
 }
 
-function rbundle_html_table_if_else_translate_side(side, table_id, tr, td, target_cell, formula) {
-    if (side.startsWith(`field`)) {
+function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cell, formula) {
+    if (true === side) return side
+    else if (side.startsWith(`field`)) {
         const field = jQuery(`[name="item_meta[${side.replace(`field`, ``)}]"]`)
         if (field.length > 0) {
             side = field.val()
@@ -709,6 +717,7 @@ function rbundle_html_table_if_else_translate_side(side, table_id, tr, td, targe
 }
 
 function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td) {
+    target_cell.attr(`contenteditable`, true)
     if (`date-picker` === value) {
         value = ``
         rbundle_html_table_update_tbody_special_case_datepicker(target_cell, tr, td)
