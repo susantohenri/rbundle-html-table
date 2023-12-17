@@ -716,7 +716,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             field
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, () => {
-                    rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                 })
         }
     } else if (`index` === side) side = tr + 1
@@ -728,7 +728,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
         field
             .off(`change.${if_else_event}`)
             .on(`change.${if_else_event}`, () => {
-                rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
             })
     } else if (side.startsWith(`column-`)) {
         var col_num = side.replace(`column-`, ``)
@@ -743,7 +743,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             column
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, function () {
-                    rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                 })
         }
     }
@@ -903,7 +903,8 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
         case `Taxable`: months_to_add = 3; break
         case `Exempt`: months_to_add = 4; break
     }
-    date_to_show.setMonth(date_to_show.getMonth() + months_to_add)
+    const translated_month = date_to_show.getMonth() + 1
+    date_to_show.setMonth(translated_month + months_to_add)
     if (0 === date_to_show.getDate()) date_to_show.setDate(date_to_show.getDate() + 1)// sunday
     if (6 === date_to_show.getDate()) date_to_show.setDate(date_to_show.getDate() + 2)// saturday
 
