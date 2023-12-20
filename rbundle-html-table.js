@@ -287,6 +287,29 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         }
     }
 
+    // tbody=",,dropdown-by-field2734,,"
+    else if (formula.startsWith(`dropdown-by-field`)) {
+        const field = jQuery(`select[name="item_meta[${formula.replace(`dropdown-by-field`, ``)}]"]`)
+        if (field.length > 0) {
+            const field_value = field.val()
+            var options = []
+            field.find(`option`).each(function () {
+                const option = jQuery(this)
+                const value = option.prop(`value`)
+                const opt = `<option value="${value}">${value}</option>`
+                if (0 > options.indexOf(opt)) options.push(opt)
+            })
+            for (var o in options) if (-1 < options[o].indexOf(`value="${field_value}"`)) options[o] = options[o].replace(`value`, `selected value`)
+            options = options.join(``)
+            result = `<select>${options}</select>`
+            field
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+        }
+    }
+
     // tbody=",,dropdown:option-1|option 2|option3,,"
     else if (formula.startsWith(`dropdown:`)) {
         var there_is_other = false

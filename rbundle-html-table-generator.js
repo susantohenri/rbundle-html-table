@@ -68,6 +68,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (`current-year-dash-index` === formula) { }
         else if (formula.startsWith(`tax-years-field`)) { }
         else if (formula.startsWith(`dropdown:`)) { }
+        else if (formula.startsWith(`dropdown-by-field`)) { }
         else if (`index` === formula) { }
         else if (`read-only-index` === formula) { }
         else if (`zipcode-validation` === formula) { }
