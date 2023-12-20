@@ -716,7 +716,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             field
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, () => {
-                    if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    if (`<input type="hidden">` !== target_cell.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                 })
         }
     } else if (`index` === side) side = tr + 1
@@ -728,7 +728,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
         field
             .off(`change.${if_else_event}`)
             .on(`change.${if_else_event}`, () => {
-                if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                if (`<input type="hidden">` !== target_cell.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
             })
     } else if (side.startsWith(`column-`)) {
         var col_num = side.replace(`column-`, ``)
@@ -743,7 +743,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             column
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, function () {
-                    if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    if (`<input type="hidden">` !== target_cell.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                 })
         }
     }
