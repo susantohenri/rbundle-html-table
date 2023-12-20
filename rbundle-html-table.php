@@ -283,7 +283,7 @@ today-tax-year-by-field### (will show: if field###/current-year < today then fie
 
 tax-year-end-by-field (will show like above but the year number will be deducted by row number, starting from 0)
 
-fed-tax-dl-hidden-value-field###-month-date-field###
+fed-tax-dl-column-#-column-# (first column for date, & last column for entity type: Pass-Through, Taxable, Exempt)
 
 TY-dash-index (will show: TY-2)
 

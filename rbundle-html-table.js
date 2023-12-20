@@ -391,7 +391,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     else if (`TY-dash-index` === formula) {
         result = `` !== result ? result : `TY - ` + parseInt(tr + 1)
     }
-    else if (formula.startsWith(`fed-tax-dl-hidden-value-field`)) {
+    else if (formula.startsWith(`fed-tax-dl-column-`)) {
         result = `` !== result ? result : rbundle_html_table_fed_tax(table, tr, td, dt, predefined)
     }
     else if (formula.startsWith(`column-`)) {
@@ -468,9 +468,6 @@ function rbundle_html_table_delete_row(table, dt, tr) {
     const year_index_td = tbody.indexOf(`current-year-dash-index`)
     data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
 
-    // special case: fed-tax
-    data = rbundle_html_table_fed_tax_add_delete_row(data, table, dt)
-
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data);
 }
 
@@ -499,9 +496,6 @@ function rbundle_html_table_add_row(table, dt, tr) {
     // special case: year index
     var year_index_td = tbody.indexOf(`current-year-dash-index`)
     if (0 < year_index_td) data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
-
-    // special case: fed-tax
-    data = rbundle_html_table_fed_tax_add_delete_row(data, table, dt)
 
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
 }
@@ -894,34 +888,19 @@ function rbundle_html_table_case_dropdown_option_field_value(table, tr, td, opti
     })
 }
 
-function rbundle_html_table_fed_tax_add_delete_row(data, table, dt) {
-    var td = -1
-    const tbody = table.attr(`tbody`).split(`,`)
-    for (var tdi = 0; tdi < tbody.length; tdi++) if (tbody[tdi].startsWith(`fed-tax-dl-hidden-value-field`)) td = tdi
-    if (0 > td) return data
-    for (var tr = 0; tr < data.length; tr++) {
-        data[tr][td] = rbundle_html_table_fed_tax(table, tr, td, dt, null)
-    }
-    return data
-}
-
 function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
     const table_id = table.attr(`id`)
     const formula = table.attr(`tbody`).split(`,`)[td]
-    const parsed_formula = formula.split(`-month-date-field`)
-    const month_date_field = jQuery(`[name="item_meta[${parsed_formula[1]}]"]`)
-    const dropdown_field_id = jQuery(`[name="item_meta[${parsed_formula[0].replace(`fed-tax-dl-hidden-value-field`, ``)}]"]`)
 
-    const month_date = month_date_field.val()
-    const current_year = parseInt((new Date()).getFullYear())
-    const index = parseInt(tr) + 1
-    const year_to_show = current_year - index + 1
-    var date_to_show = new Date(`${month_date}/${year_to_show}`)
+    const parsed_formula = formula.split(`-column-`)
+    const date_td = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(parseInt(parsed_formula[1]) - 1)
+    const entity = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(parseInt(parsed_formula[2]) - 1).find(`select`)
+    const date_to_show = new Date(date_td.html())
     const days_to_add = 15
     var months_to_add = 2
 
     date_to_show.setDate(date_to_show.getDate() + days_to_add)
-    switch (dropdown_field_id.val()) {
+    switch (entity.val()) {
         case `Pass-Through`: months_to_add = 2; break
         case `Taxable`: months_to_add = 3; break
         case `Exempt`: months_to_add = 4; break
@@ -931,16 +910,25 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
     if (0 === date_to_show.getDate()) date_to_show.setDate(date_to_show.getDate() + 1)// sunday
     if (6 === date_to_show.getDate()) date_to_show.setDate(date_to_show.getDate() + 2)// saturday
 
-    month_date_field
+    date_td
         .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
         .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
             rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
         })
-    dropdown_field_id
+    date_td
         .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
         .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
             rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
         })
-
+    entity
+        .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+        .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+        })
+    entity
+        .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+        .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+        })
     return date_to_show.toLocaleDateString()
 }
