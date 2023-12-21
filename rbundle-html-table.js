@@ -733,7 +733,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             field
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, () => {
-                    if (`<input type="hidden">` !== target_cell.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                 })
         }
     } else if (`index` === side) side = tr + 1
@@ -745,7 +745,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
         field
             .off(`change.${if_else_event}`)
             .on(`change.${if_else_event}`, () => {
-                if (`<input type="hidden">` !== target_cell.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
             })
     } else if (side.startsWith(`column-`)) {
         var col_num = side.replace(`column-`, ``)
@@ -760,7 +760,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             column
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, function () {
-                    if (`<input type="hidden">` !== target_cell.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
                 })
         }
     }
@@ -775,6 +775,7 @@ function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td) {
     } else if (`n/a-read-only` === value) {
         value = `N/A`
         target_cell.attr(`contenteditable`, false)
+        target_cell.datepicker(`destroy`)
     }
     target_cell.html(value)
     target_cell.trigger(`change`)
@@ -905,10 +906,10 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
         case `Taxable`: months_to_add = 3; break
         case `Exempt`: months_to_add = 4; break
     }
-    const translated_month = date_to_show.getMonth() + 1
+    const translated_month = date_to_show.getMonth()
     date_to_show.setMonth(translated_month + months_to_add)
-    if (0 === date_to_show.getDate()) date_to_show.setDate(date_to_show.getDate() + 1)// sunday
-    if (6 === date_to_show.getDate()) date_to_show.setDate(date_to_show.getDate() + 2)// saturday
+    if (0 === date_to_show.getDay()) date_to_show.setDate(date_to_show.getDate() + 1)// sunday
+    if (6 === date_to_show.getDay()) date_to_show.setDate(date_to_show.getDate() + 2)// saturday
 
     date_td
         .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
