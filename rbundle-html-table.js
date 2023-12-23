@@ -104,6 +104,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     }
 
     rbundle_html_table_update_tbody_special_case_csv(table)
+    rbundle_html_table_fed_tr_amend(table, dt)
 }
 
 function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
@@ -123,7 +124,7 @@ function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
     }
     /* row-count="field4163" */
     /* row-count="field4163+field4165-field3345" */
-    if (row_count.startsWith(`field`)) {
+    else if (row_count.startsWith(`field`)) {
         var result = 0;
         var operator = `+`
         row_count.split(`field`).forEach(function (field_id, index, arr) {
@@ -147,7 +148,13 @@ function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
             if ([`+`, `-`, `*`].indexOf(last_char) > -1) operator = last_char
         })
         return result
-    } else return row_count
+    }
+
+    else if (row_count.startsWith(`fed-tr-amend-open-column`)) {
+        return 1
+    }
+
+    else return row_count
 }
 
 function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined) {
@@ -932,4 +939,32 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
             rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
         })
     return date_to_show.toLocaleDateString()
+}
+
+function rbundle_html_table_fed_tr_amend(table, dt) {
+    const row_count_formula = table.attr(`row-count`)
+    if (!row_count_formula.startsWith(`fed-tr-amend-open-column`)) return;
+
+    const [unused, year_end_td, nol_td, offset_td] = row_count_formula.replace(`fed-tr-amend-open`, ``).split(`-column`).map(part => parseInt(part.split(`-`)[0]) - 1)
+    const formed_year_field_id = row_count_formula.split(`field`)[1].split(`-`)[0]
+    const last_tr_tds = table.find(`tbody`).find(`tr`).last().find(`td`)
+
+    const year_end_element = last_tr_tds.eq(year_end_td)
+    const nol_element = last_tr_tds.eq(nol_td)
+    const offset_element = last_tr_tds.eq(offset_td).find(`select`)
+    const formed_year_field_element = jQuery(`[name="item_meta[${formed_year_field_id}]"]`)
+
+    const year_end_value = parseInt(year_end_element.text().split(`/`)[2])
+    const nol_value = nol_element.text()
+    const offset_value = offset_element.val()
+    const formed_year_field_value = parseInt(formed_year_field_element.val())
+
+    if (year_end_value > formed_year_field_value) rbundle_html_table_add_row(table, dt, table.find(`tbody`).find(`tr`).index())
+
+    const rbundle_html_table_fed_tr_amend_event = `rbundle_html_table_fed_tr_amend_${table.attr(`id`)}`
+    formed_year_field_element
+        .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
+        .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
+            rbundle_html_table_fed_tr_amend(table, dt)
+        })
 }
