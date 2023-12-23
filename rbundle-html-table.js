@@ -364,30 +364,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
 
     // tbody=",,tax-year-end-by-field###,,"
     else if (formula.startsWith(`tax-year-end-by-field`)) {
-        const field_id = formula.replace(`tax-year-end-by-field`, ``)
-        const field = jQuery(`[name="item_meta[${field_id}]"]`)
-        if (field.length > 0) {
-            field
-                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
-                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
-                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
-                })
-            var end_of_month = field.val()
-            if (`Other` === end_of_month) {
-                const other = jQuery(`input[name="item_meta[other][${field_id}]"]`)
-                other
-                    .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
-                    .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
-                        rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
-                    })
-                end_of_month = other.val()
-            }
-            const current_year = parseInt((new Date()).getFullYear())
-            var year_to_show = new Date(`${end_of_month}/${current_year}`).getTime() <= new Date().getTime() ? current_year + 1 : current_year
-            year_to_show -= parseInt(tr)
-            const result_to_show = `${end_of_month}/${year_to_show}`
-            if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
-        }
+        result = rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, result, predefined)
     }
     else if (formula.startsWith(`TY-dash-index-minus-`)) {
         const num = formula.replace(`TY-dash-index-minus-`, ``)
@@ -491,7 +468,7 @@ function rbundle_html_table_add_row(table, dt, tr) {
     const row_to_add = []
     for (var th = 0; th < thead_length; th++) {
         var new_cell = ``
-        if ([`add-row`, `trash`].indexOf(tbody[th]) > -1 || tbody[th].indexOf(`dropdown:`) > -1 || `index` === tbody[th] || tbody[th].startsWith(`field`)) new_cell = null// fallback to tbody formula
+        if ([`add-row`, `trash`].indexOf(tbody[th]) > -1 || tbody[th].indexOf(`dropdown:`) > -1 || `index` === tbody[th] || tbody[th].startsWith(`field`) || -1 < tbody[th].indexOf(`tax-year-end-by-field`)) new_cell = null// fallback to tbody formula
         row_to_add.push(new_cell)
     }
     data.splice(tr + 1, 0, row_to_add)
@@ -503,6 +480,10 @@ function rbundle_html_table_add_row(table, dt, tr) {
     // special case: year index
     var year_index_td = tbody.indexOf(`current-year-dash-index`)
     if (0 < year_index_td) data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
+
+    var tax_year_end_by_field_td = -1
+    for (var tb in tbody) if (tbody[tb].startsWith(`tax-year-end-by-field`)) tax_year_end_by_field_td = tb
+    if (0 < tax_year_end_by_field_td) data = rbundle_html_table_add_row_case_tax_year_end_by_field(dt, table, tax_year_end_by_field_td, data)
 
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
 }
@@ -516,6 +497,11 @@ function rbundle_html_table_add_row_case_year_index(year_index_td, data) {
     for (var tr = 0; tr < data.length; tr++) {
         data[tr][year_index_td] = `Current year - ${tr}`
     }
+    return data
+}
+
+function rbundle_html_table_add_row_case_tax_year_end_by_field(dt, table, td, data) {
+    for (var tr = 0; tr < data.length; tr++) data[tr][td] = rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, '', null)
     return data
 }
 
@@ -939,6 +925,36 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
             rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
         })
     return date_to_show.toLocaleDateString()
+}
+
+function rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, result, predefined) {
+    const formula = table.attr(`tbody`).split(`,`)[td]
+    const field_id = formula.replace(`tax-year-end-by-field`, ``)
+    const field = jQuery(`[name="item_meta[${field_id}]"]`)
+    if (field.length > 0) {
+        const table_id = table.attr(`id`)
+        field
+            .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+            .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+            })
+        var end_of_month = field.val()
+        if (`Other` === end_of_month) {
+            const other = jQuery(`input[name="item_meta[other][${field_id}]"]`)
+            other
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+            end_of_month = other.val()
+        }
+        const current_year = parseInt((new Date()).getFullYear())
+        var year_to_show = new Date(`${end_of_month}/${current_year}`).getTime() <= new Date().getTime() ? current_year + 1 : current_year
+        year_to_show -= parseInt(tr)
+        const result_to_show = `${end_of_month}/${year_to_show}`
+        if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
+    }
+    return result
 }
 
 function rbundle_html_table_fed_tr_amend(table, dt) {
