@@ -775,7 +775,7 @@ function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td) {
     } else if (`n/a-read-only` === value) {
         value = `N/A`
         target_cell.attr(`contenteditable`, false)
-        target_cell.datepicker(`destroy`)
+        if (target_cell.datepicker) target_cell.datepicker(`destroy`)
     }
     target_cell.html(value)
     target_cell.trigger(`change`)
