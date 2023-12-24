@@ -560,7 +560,8 @@ function rbundle_html_table_update_tbody_special_case_datepicker(target, tr, td)
                 })
                 target.html(date.join(`/`))
                 target.removeClass(`invalid-cell`)
-                target.trigger(`blur.contenteditable_${tr}_${td}`)
+                const table_id = target.parents(`table`).attr(`id`)
+                target.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)
             }
         }, 500)
     })
@@ -575,7 +576,8 @@ function rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, 
         else if (isNaN(number)) rbundle_html_table_show_error(self, `Numbers only`)
         else {
             self.html(numeral(self.html()).format('$0,0.00'))
-            target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
+            const table_id = target_cell.parents(`table`).attr(`id`)
+            target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)
         }
     })
 }
@@ -600,7 +602,8 @@ function rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, 
         else target_cell.removeClass(`invalid-cell`)
 
         target_cell.find(`option[value="${selected}"]`).attr(`selected`, true)
-        target_cell.trigger(`blur.contenteditable_${tr}_${td}`)
+        const table_id = target_cell.parents(`table`).attr(`id`)
+        target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)
     })
 }
 
