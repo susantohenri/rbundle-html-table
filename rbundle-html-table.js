@@ -251,7 +251,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     }
 
     // tbody=",,current-year-minus-field238,,"
-    else if (formula.startsWith(`current-year-minus-field`)) {// henrisusanto
+    else if (formula.startsWith(`current-year-minus-field`)) {
         const field_id = formula.replace(`current-year-minus-field`, ``)
         const field = jQuery(`[name="item_meta[${field_id}]"]`)
         if (field.length > 0) {
@@ -957,12 +957,14 @@ function rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, result, pre
     return result
 }
 
+// row-count="fed-tr-amend-open-column2-field4387-column10-column11:Total Offset"
 function rbundle_html_table_fed_tr_amend(table, dt) {
     const row_count_formula = table.attr(`row-count`)
     if (!row_count_formula.startsWith(`fed-tr-amend-open-column`)) return;
 
     const [unused, year_end_td, nol_td, offset_td] = row_count_formula.replace(`fed-tr-amend-open`, ``).split(`-column`).map(part => parseInt(part.split(`-`)[0]) - 1)
     const formed_year_field_id = row_count_formula.split(`field`)[1].split(`-`)[0]
+    const expected_offset_value = row_count_formula.split(`:`)[1]
     const last_tr_tds = table.find(`tbody`).find(`tr`).last().find(`td`)
 
     const year_end_element = last_tr_tds.eq(year_end_td)
@@ -971,17 +973,29 @@ function rbundle_html_table_fed_tr_amend(table, dt) {
     const formed_year_field_element = jQuery(`[name="item_meta[${formed_year_field_id}]"]`)
 
     const year_end_value = parseInt(year_end_element.text().split(`/`)[2])
-    const nol_value = nol_element.text()
+    const nol_value = parseInt(nol_element.text())
     const offset_value = offset_element.val()
     const formed_year_field_value = parseInt(formed_year_field_element.val())
 
     const tr = table.find(`tbody`).find(`tr`).last().index()
-    console.log(Math.random(), tr, 4 < tr)
     if (3 > tr && year_end_value > formed_year_field_value) rbundle_html_table_add_row(table, dt, tr)
+    else if (0 < nol_value || expected_offset_value == offset_value) rbundle_html_table_add_row(table, dt, tr)
 
     const rbundle_html_table_fed_tr_amend_event = `rbundle_html_table_fed_tr_amend_${table.attr(`id`)}`
     formed_year_field_element
         .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
+        .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
+            rbundle_html_table_fed_tr_amend(table, dt)
+        })
+    table.find(`tbody`).find(`tr`).find(`td`).eq(nol_td)
+        .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
+    nol_element
+        .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
+            rbundle_html_table_fed_tr_amend(table, dt)
+        })
+    table.find(`tbody`).find(`tr`).find(`td`).eq(offset_td)
+        .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
+    offset_element
         .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
             rbundle_html_table_fed_tr_amend(table, dt)
         })
