@@ -104,6 +104,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     }
 
     rbundle_html_table_update_tbody_special_case_csv(table)
+    rbundle_html_table_fed_tr_amend(table, dt)
 }
 
 function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
@@ -123,7 +124,7 @@ function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
     }
     /* row-count="field4163" */
     /* row-count="field4163+field4165-field3345" */
-    if (row_count.startsWith(`field`)) {
+    else if (row_count.startsWith(`field`)) {
         var result = 0;
         var operator = `+`
         row_count.split(`field`).forEach(function (field_id, index, arr) {
@@ -147,7 +148,13 @@ function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
             if ([`+`, `-`, `*`].indexOf(last_char) > -1) operator = last_char
         })
         return result
-    } else return row_count
+    }
+
+    else if (row_count.startsWith(`fed-tr-amend-open-column`)) {
+        return 1
+    }
+
+    else return row_count
 }
 
 function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined) {
@@ -244,7 +251,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     }
 
     // tbody=",,current-year-minus-field238,,"
-    else if (formula.startsWith(`current-year-minus-field`)) {// henrisusanto
+    else if (formula.startsWith(`current-year-minus-field`)) {
         const field_id = formula.replace(`current-year-minus-field`, ``)
         const field = jQuery(`[name="item_meta[${field_id}]"]`)
         if (field.length > 0) {
@@ -357,30 +364,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
 
     // tbody=",,tax-year-end-by-field###,,"
     else if (formula.startsWith(`tax-year-end-by-field`)) {
-        const field_id = formula.replace(`tax-year-end-by-field`, ``)
-        const field = jQuery(`[name="item_meta[${field_id}]"]`)
-        if (field.length > 0) {
-            field
-                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
-                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
-                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
-                })
-            var end_of_month = field.val()
-            if (`Other` === end_of_month) {
-                const other = jQuery(`input[name="item_meta[other][${field_id}]"]`)
-                other
-                    .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
-                    .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
-                        rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
-                    })
-                end_of_month = other.val()
-            }
-            const current_year = parseInt((new Date()).getFullYear())
-            var year_to_show = new Date(`${end_of_month}/${current_year}`).getTime() <= new Date().getTime() ? current_year + 1 : current_year
-            year_to_show -= parseInt(tr)
-            const result_to_show = `${end_of_month}/${year_to_show}`
-            if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
-        }
+        result = rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, result, predefined)
     }
     else if (formula.startsWith(`TY-dash-index-minus-`)) {
         const num = formula.replace(`TY-dash-index-minus-`, ``)
@@ -439,9 +423,9 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
 
     if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(target_cell, tr, td)
     if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
-    if (is_currency) rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td)
+    if (is_currency) rbundle_html_table_update_tbody_special_case_currency(table_id, target_cell, tr, td)
     if (`zipcode-validation` === formula) rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td)
-    if (formula.startsWith(`if`)) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+    if (formula.startsWith(`if`)) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
 }
 
 function rbundle_html_table_content_editable(table, dt, tr) {
@@ -484,7 +468,7 @@ function rbundle_html_table_add_row(table, dt, tr) {
     const row_to_add = []
     for (var th = 0; th < thead_length; th++) {
         var new_cell = ``
-        if ([`add-row`, `trash`].indexOf(tbody[th]) > -1 || tbody[th].indexOf(`dropdown:`) > -1 || `index` === tbody[th] || tbody[th].startsWith(`field`)) new_cell = null// fallback to tbody formula
+        if ([`add-row`, `trash`].indexOf(tbody[th]) > -1 || tbody[th].indexOf(`dropdown:`) > -1 || `index` === tbody[th] || tbody[th].startsWith(`field`) || -1 < tbody[th].indexOf(`tax-year-end-by-field`)) new_cell = null// fallback to tbody formula
         row_to_add.push(new_cell)
     }
     data.splice(tr + 1, 0, row_to_add)
@@ -496,6 +480,10 @@ function rbundle_html_table_add_row(table, dt, tr) {
     // special case: year index
     var year_index_td = tbody.indexOf(`current-year-dash-index`)
     if (0 < year_index_td) data = rbundle_html_table_add_row_case_year_index(year_index_td, data)
+
+    var tax_year_end_by_field_td = -1
+    for (var tb in tbody) if (tbody[tb].startsWith(`tax-year-end-by-field`)) tax_year_end_by_field_td = tb
+    if (0 < tax_year_end_by_field_td) data = rbundle_html_table_add_row_case_tax_year_end_by_field(dt, table, tax_year_end_by_field_td, data)
 
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
 }
@@ -509,6 +497,11 @@ function rbundle_html_table_add_row_case_year_index(year_index_td, data) {
     for (var tr = 0; tr < data.length; tr++) {
         data[tr][year_index_td] = `Current year - ${tr}`
     }
+    return data
+}
+
+function rbundle_html_table_add_row_case_tax_year_end_by_field(dt, table, td, data) {
+    for (var tr = 0; tr < data.length; tr++) data[tr][td] = rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, '', null)
     return data
 }
 
@@ -567,16 +560,14 @@ function rbundle_html_table_update_tbody_special_case_datepicker(target, tr, td)
     })
 }
 
-function rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td) {
+function rbundle_html_table_update_tbody_special_case_currency(table_id, target_cell, tr, td) {
     target_cell.blur(function () {
         rbundle_html_table_reset_error(target_cell)
-        const self = jQuery(this)
-        const number = self.html().replace(`$`, ``).replace(`,`, ``)
+        const number = target_cell.html().replace(`$`, ``).replace(`,`, ``)
         if (`` === number) { }
-        else if (isNaN(number)) rbundle_html_table_show_error(self, `Numbers only`)
+        else if (isNaN(number)) rbundle_html_table_show_error(target_cell, `Numbers only`)
         else {
-            self.html(numeral(self.html()).format('$0,0.00'))
-            const table_id = target_cell.parents(`table`).attr(`id`)
+            target_cell.html(numeral(target_cell.html()).format('$0,0.00'))
             target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)
         }
     })
@@ -617,7 +608,7 @@ function rbundle_html_table_update_tbody_special_case_zipcode_validation(target_
     })
 }
 
-function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td) {
+function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined) {
     // tbody=",,if 5 equals field4387 then `Yes` else if field4388 not-equals field4389 then field4387 else if field4389 equals `No` then 18 else field4387,,"
     const table_id = target_cell.parents(`table`).attr(`id`)
     const blocks = formula.split(`else`)
@@ -627,44 +618,44 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
         var { left, operator, right, value, error } = rbundle_html_table_if_else_parse_block(block)
         if (error) continue;
 
-        left = rbundle_html_table_if_else_bind_side(left, table_id, tr, td, target_cell, formula)
-        right = rbundle_html_table_if_else_bind_side(right, table_id, tr, td, target_cell, formula)
+        left = rbundle_html_table_if_else_bind_side(left, table_id, tr, td, target_cell, formula, predefined)
+        right = rbundle_html_table_if_else_bind_side(right, table_id, tr, td, target_cell, formula, predefined)
         value = rbundle_html_table_if_else_translate_value(value, tr)
 
         switch (operator) {
             case `equals`:
                 if (left == right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
             case `not-equals`:
                 if (left != right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
             case `greater-than`:
                 if (left > right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
             case `greater-than-equals`:
                 if (left >= right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
             case `less-than`:
                 if (left < right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
             case `less-than-equals`:
                 if (left <= right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
         }
@@ -726,7 +717,7 @@ function rbundle_html_table_if_else_translate_value(value, tr) {
     return value
 }
 
-function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cell, formula) {
+function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cell, formula, predefined) {
     const if_else_event = `rxbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`
     if (true === side) return side
     else if (side.startsWith(`field`)) {
@@ -736,7 +727,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             field
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, () => {
-                    rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
                 })
         }
     } else if (`index` === side) side = tr + 1
@@ -748,7 +739,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
         field
             .off(`change.${if_else_event}`)
             .on(`change.${if_else_event}`, () => {
-                rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
             })
     } else if (side.startsWith(`column-`)) {
         var col_num = side.replace(`column-`, ``)
@@ -763,14 +754,14 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             column
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, function () {
-                    if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
                 })
         }
     }
     return side
 }
 
-function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td) {
+function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined) {
     target_cell.attr(`contenteditable`, true)
     if (`date-picker` === value) {
         value = ``
@@ -780,6 +771,9 @@ function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td) {
         target_cell.attr(`contenteditable`, false)
         if (target_cell.datepicker) target_cell.datepicker(`destroy`)
     }
+
+    if (`` === value && `` !== predefined) value = predefined
+
     target_cell.html(value)
     target_cell.trigger(`change`)
 }
@@ -935,4 +929,78 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
             rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
         })
     return date_to_show.toLocaleDateString()
+}
+
+function rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, result, predefined) {
+    const formula = table.attr(`tbody`).split(`,`)[td]
+    const field_id = formula.replace(`tax-year-end-by-field`, ``)
+    const field = jQuery(`[name="item_meta[${field_id}]"]`)
+    if (field.length > 0) {
+        const table_id = table.attr(`id`)
+        field
+            .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+            .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+            })
+        var end_of_month = field.val()
+        if (`Other` === end_of_month) {
+            const other = jQuery(`input[name="item_meta[other][${field_id}]"]`)
+            other
+                .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+                .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+                    rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+                })
+            end_of_month = other.val()
+        }
+        const current_year = parseInt((new Date()).getFullYear())
+        var year_to_show = new Date(`${end_of_month}/${current_year}`).getTime() <= new Date().getTime() ? current_year + 1 : current_year
+        year_to_show -= parseInt(tr)
+        const result_to_show = `${end_of_month}/${year_to_show}`
+        if (`` === result && 0 < result_to_show.indexOf(`/`)) result = result_to_show
+    }
+    return result
+}
+
+// row-count="fed-tr-amend-open-column2-field4387-column10-column11:Total Offset"
+function rbundle_html_table_fed_tr_amend(table, dt) {
+    const row_count_formula = table.attr(`row-count`)
+    if (!row_count_formula.startsWith(`fed-tr-amend-open-column`)) return;
+
+    const [unused, year_end_td, nol_td, offset_td] = row_count_formula.replace(`fed-tr-amend-open`, ``).split(`-column`).map(part => parseInt(part.split(`-`)[0]) - 1)
+    const formed_year_field_id = row_count_formula.split(`field`)[1].split(`-`)[0]
+    const expected_offset_value = row_count_formula.split(`:`)[1]
+    const last_tr_tds = table.find(`tbody`).find(`tr`).last().find(`td`)
+
+    const year_end_element = last_tr_tds.eq(year_end_td)
+    const nol_element = last_tr_tds.eq(nol_td)
+    const offset_element = last_tr_tds.eq(offset_td).find(`select`)
+    const formed_year_field_element = jQuery(`[name="item_meta[${formed_year_field_id}]"]`)
+
+    const year_end_value = parseInt(year_end_element.text().split(`/`)[2])
+    const nol_value = parseInt(nol_element.text().replace(`$`, ``).replace(`,`, ``))
+    const offset_value = offset_element.val()
+    const formed_year_field_value = parseInt(formed_year_field_element.val())
+
+    const tr = table.find(`tbody`).find(`tr`).last().index()
+    if (3 > tr && year_end_value > formed_year_field_value) rbundle_html_table_add_row(table, dt, tr)
+    else if (0 < nol_value || expected_offset_value == offset_value) rbundle_html_table_add_row(table, dt, tr)
+
+    const rbundle_html_table_fed_tr_amend_event = `rbundle_html_table_fed_tr_amend_${table.attr(`id`)}`
+    formed_year_field_element
+        .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
+        .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
+            rbundle_html_table_fed_tr_amend(table, dt)
+        })
+    table.find(`tbody`).find(`tr`).find(`td`).eq(nol_td)
+        .off(`blur.${rbundle_html_table_fed_tr_amend_event}`)
+    nol_element
+        .on(`blur.${rbundle_html_table_fed_tr_amend_event}`, () => {
+            rbundle_html_table_fed_tr_amend(table, dt)
+        })
+    table.find(`tbody`).find(`tr`).find(`td`).eq(offset_td)
+        .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
+    offset_element
+        .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
+            rbundle_html_table_fed_tr_amend(table, dt)
+        })
 }
