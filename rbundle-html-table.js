@@ -423,7 +423,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
 
     if (is_datepicker) rbundle_html_table_update_tbody_special_case_datepicker(target_cell, tr, td)
     if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
-    if (is_currency) rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td)
+    if (is_currency) rbundle_html_table_update_tbody_special_case_currency(table_id, target_cell, tr, td)
     if (`zipcode-validation` === formula) rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td)
     if (formula.startsWith(`if`)) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
 }
@@ -456,6 +456,7 @@ function rbundle_html_table_delete_row(table, dt, tr) {
 }
 
 function rbundle_html_table_add_row(table, dt, tr) {
+    console.log((new Date()).getTime(), `rbundle_html_table_add_row(table, dt, tr)`)
     var data = dt.rows().data()
     table.find(`tbody tr`).each(function () {
         const idx = jQuery(this).index()
@@ -560,17 +561,16 @@ function rbundle_html_table_update_tbody_special_case_datepicker(target, tr, td)
     })
 }
 
-function rbundle_html_table_update_tbody_special_case_currency(target_cell, tr, td) {
+function rbundle_html_table_update_tbody_special_case_currency(table_id, target_cell, tr, td) {
     target_cell.blur(function () {
+        console.log((new Date()).getTime(), `rbundle_html_table_update_tbody_special_case_currency(table_id, target_cell, tr, td)`)
         rbundle_html_table_reset_error(target_cell)
-        const self = jQuery(this)
-        const number = self.html().replace(`$`, ``).replace(`,`, ``)
+        const number = target_cell.html().replace(`$`, ``).replace(`,`, ``)
         if (`` === number) { }
-        else if (isNaN(number)) rbundle_html_table_show_error(self, `Numbers only`)
+        else if (isNaN(number)) rbundle_html_table_show_error(target_cell, `Numbers only`)
         else {
-            self.html(numeral(self.html()).format('$0,0.00'))
-            const table_id = target_cell.parents(`table`).attr(`id`)
-            target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)
+            target_cell.html(numeral(target_cell.html()).format('$0,0.00'))
+            target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)// henrisusanto
         }
     })
 }
@@ -976,7 +976,7 @@ function rbundle_html_table_fed_tr_amend(table, dt) {
     const formed_year_field_element = jQuery(`[name="item_meta[${formed_year_field_id}]"]`)
 
     const year_end_value = parseInt(year_end_element.text().split(`/`)[2])
-    const nol_value = parseInt(nol_element.text())
+    const nol_value = parseInt(nol_element.text().replace(`$`, ``).replace(`,`, ``))
     const offset_value = offset_element.val()
     const formed_year_field_value = parseInt(formed_year_field_element.val())
 
@@ -991,9 +991,10 @@ function rbundle_html_table_fed_tr_amend(table, dt) {
             rbundle_html_table_fed_tr_amend(table, dt)
         })
     table.find(`tbody`).find(`tr`).find(`td`).eq(nol_td)
-        .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
+        .off(`blur.${rbundle_html_table_fed_tr_amend_event}`)
     nol_element
-        .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
+        .on(`blur.${rbundle_html_table_fed_tr_amend_event}`, () => {
+            console.log((new Date()).getTime(), `rbundle_html_table_fed_tr_amend(table, dt)`, parseInt(nol_element.text().replace(`$`, ``).replace(`,`, ``)))
             rbundle_html_table_fed_tr_amend(table, dt)
         })
     table.find(`tbody`).find(`tr`).find(`td`).eq(offset_td)
