@@ -226,8 +226,14 @@ add_action('admin_menu', function () {
                                             <br><small>don't forget to put formidable-csv shortcode with version="1".</small>
                                         </p>
 
+                                        <p>
+                                            <b>2. Show Tooltip on Table Header?</b>
+                                            <br><input name="table_header_tooltip" checked type="radio" value="no"> No
+                                            <br><input name="table_header_tooltip" type="radio" value="yes"> Yes
+                                        </p>
+
                                         <p class="number-of-columns">
-                                            <b class="step-1">2. Number of Columns?*</b>
+                                            <b class="step-1">3. Number of Columns?*</b>
                                             <br class="step-1"><input name="number of columns" value="static" type="radio" class="step-1"> Static
                                             <br class="step-1"><input name="number of columns" value="dynamic" disabled type="radio" class="step-1"> Dynamic
                                             <br class="step-2"><input type="text" name="value number of columns" class="step-2">
@@ -235,28 +241,28 @@ add_action('admin_menu', function () {
                                         </p>
 
                                         <p>
-                                            <b>3. User Able to Add Columns?</b>
+                                            <b>4. User Able to Add Columns?</b>
                                             <br><input name="user_able_to_add_columns" disabled type="radio"> No
                                             <br><input name="user_able_to_add_columns" disabled type="radio"> Yes
                                             <br><small>and delete those added columns.</small>
                                         </p>
 
                                         <p class="number-of-rows">
-                                            <b class="step-1">4. Number of Rows?</b class="step-1">
+                                            <b class="step-1">5. Number of Rows?</b class="step-1">
                                             <br class="step-1"><input name="number of rows" value="static" type="radio" class="step-1"> Static
                                             <br class="step-1"><input name="number of rows" value="dynamic" type="radio" class="step-1"> Dynamic
                                             <br class="step-2"><input type="text" name="value number of rows" class="step-2">
                                         </p>
 
                                         <p class="user-able-add-rows">
-                                            <b class="step-1">5. User Able to Add Rows?</b class="step-1">
+                                            <b class="step-1">6. User Able to Add Rows?</b class="step-1">
                                             <br class="step-1"><input name="user_able_to_add_rows" type="radio" checked value="no" class="step-1"> No
                                             <br class="step-1"><input name="user_able_to_add_rows" type="radio" value="yes" class="step-1"> Yes
                                             <br class="step-1"><small class="step-1">and delete those added columns.</small class="step-1">
                                         </p>
 
                                         <p class="user-able-delete-default-rows">
-                                            <b class="step-1">6. User Able to Delete Default Rows?</b class="step-1">
+                                            <b class="step-1">7. User Able to Delete Default Rows?</b class="step-1">
                                             <br class="step-1"><input name="user_able_to_delete_default_rows" checked type="radio" value="no" class="step-1"> No
                                             <br class="step-1"><input name="user_able_to_delete_default_rows" type="radio" value="yes" class="step-1"> Yes
                                         </p>
@@ -332,7 +338,7 @@ thead="table|#anotherTableID|thead|1"
                                         </p>
 
                                         <p>
-                                            <b>7. Table ID</b>
+                                            <b>8. Table ID</b>
                                             <br><input type="text" class="table-id" placeholder="Generated on submission, not changed by update" style="width: 100%;">
                                         </p>
 

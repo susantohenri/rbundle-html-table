@@ -36,6 +36,7 @@ function rbundle_html_table_update_thead(thead, dt, table) {
         rbundle_html_table_update_thead_cell(th, thead[th], dt, table)
     }
     rbundle_html_table_update_thead_special_case_csv(table)
+    rbundle_html_table_update_thead_special_case_tooltip(table)
 }
 
 function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
@@ -539,6 +540,19 @@ function rbundle_html_table_update_tbody_special_case_csv(table) {
             table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td).attr(`data-csv`, `${aplhabet}${number}`)
             number++
         }
+    }
+}
+
+function rbundle_html_table_update_thead_special_case_tooltip(table) {
+    var thead_data_tooltip = table.attr(`thead-data-tooltip`)
+    if (!thead_data_tooltip) return false
+    thead_data_tooltip = thead_data_tooltip.split(`,`)
+    for (var th = 0; th < thead_data_tooltip.length; th++) {
+        const thead_target = table.find(`thead`).find(`tr`).find(`th`).eq(th)
+        thead_target.prepend(`<i class="fa fa-icon fa-info-circle" style="font-size: 65%; vertical-align:super; color: blue;">&nbsp;`)
+        const i = thead_target.find(`i.fa`)
+        i.attr(`title`, thead_data_tooltip[th])
+        i.tooltip({ placement: `bottom` })
     }
 }
 
