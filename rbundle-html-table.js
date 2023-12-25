@@ -425,7 +425,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
     if (is_currency) rbundle_html_table_update_tbody_special_case_currency(table_id, target_cell, tr, td)
     if (`zipcode-validation` === formula) rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td)
-    if (formula.startsWith(`if`)) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+    if (formula.startsWith(`if`)) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
 }
 
 function rbundle_html_table_content_editable(table, dt, tr) {
@@ -608,7 +608,7 @@ function rbundle_html_table_update_tbody_special_case_zipcode_validation(target_
     })
 }
 
-function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td) {
+function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined) {
     // tbody=",,if 5 equals field4387 then `Yes` else if field4388 not-equals field4389 then field4387 else if field4389 equals `No` then 18 else field4387,,"
     const table_id = target_cell.parents(`table`).attr(`id`)
     const blocks = formula.split(`else`)
@@ -618,44 +618,44 @@ function rbundle_html_table_update_tbody_special_case_if_else(target_cell, formu
         var { left, operator, right, value, error } = rbundle_html_table_if_else_parse_block(block)
         if (error) continue;
 
-        left = rbundle_html_table_if_else_bind_side(left, table_id, tr, td, target_cell, formula)
-        right = rbundle_html_table_if_else_bind_side(right, table_id, tr, td, target_cell, formula)
+        left = rbundle_html_table_if_else_bind_side(left, table_id, tr, td, target_cell, formula, predefined)
+        right = rbundle_html_table_if_else_bind_side(right, table_id, tr, td, target_cell, formula, predefined)
         value = rbundle_html_table_if_else_translate_value(value, tr)
 
         switch (operator) {
             case `equals`:
                 if (left == right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
             case `not-equals`:
                 if (left != right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
             case `greater-than`:
                 if (left > right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
             case `greater-than-equals`:
                 if (left >= right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
             case `less-than`:
                 if (left < right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
             case `less-than-equals`:
                 if (left <= right) {
                     matched = true
-                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td)
+                    rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined)
                 }
                 ; break
         }
@@ -717,7 +717,7 @@ function rbundle_html_table_if_else_translate_value(value, tr) {
     return value
 }
 
-function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cell, formula) {
+function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cell, formula, predefined) {
     const if_else_event = `rxbundle_html_table_update_tbody_special_case_if_else_${table_id}_${tr}_${td}`
     if (true === side) return side
     else if (side.startsWith(`field`)) {
@@ -727,7 +727,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             field
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, () => {
-                    rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
                 })
         }
     } else if (`index` === side) side = tr + 1
@@ -739,7 +739,7 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
         field
             .off(`change.${if_else_event}`)
             .on(`change.${if_else_event}`, () => {
-                rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
             })
     } else if (side.startsWith(`column-`)) {
         var col_num = side.replace(`column-`, ``)
@@ -754,14 +754,14 @@ function rbundle_html_table_if_else_bind_side(side, table_id, tr, td, target_cel
             column
                 .off(`change.${if_else_event}`)
                 .on(`change.${if_else_event}`, function () {
-                    if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td)
+                    if (`<input type="hidden">` !== column.html()) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
                 })
         }
     }
     return side
 }
 
-function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td) {
+function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, predefined) {
     target_cell.attr(`contenteditable`, true)
     if (`date-picker` === value) {
         value = ``
@@ -771,6 +771,9 @@ function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td) {
         target_cell.attr(`contenteditable`, false)
         if (target_cell.datepicker) target_cell.datepicker(`destroy`)
     }
+
+    if (`` === value && `` !== predefined) value = predefined
+
     target_cell.html(value)
     target_cell.trigger(`change`)
 }
