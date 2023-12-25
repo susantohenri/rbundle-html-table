@@ -84,6 +84,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (formula.startsWith(`TY-dash-index-minus-`)) { }
         else if (`n/a-read-only` === formula) { }
         else if (formula.startsWith(`fed-tax-dl-column-`)) { }
+        else if (formula.startsWith(`fed-tr-amend-open-column`)) { }
         else if (formula.startsWith(`column-`)) { }
         else formula = '`' + formula.replaceAll('`', ``) + '`'
         atbody.push(formula)

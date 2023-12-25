@@ -285,6 +285,8 @@ tax-year-end-by-field (will show like above but the year number will be deducted
 
 fed-tax-dl-column-#-column-# (first column for date, & last column for entity type: Pass-Through, Taxable, Exempt)
 
+fed-tr-amend-open-column##-field###-column##-column##:dropdown value here (use this for dynamic number of rows)
+
 TY-dash-index (will show: TY-2)
 
 TY-dash-index-minus-# (usage example: TY-dash-index-minus-3 will show: TY-4 in row 7)
