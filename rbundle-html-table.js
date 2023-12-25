@@ -322,14 +322,26 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
         var there_is_other = false
         const options = formula.slice(9).split(`|`).map((option, option_index) => {
             if (`other` === option) there_is_other = true
+
             if (option.startsWith(`field`)) {
                 const field = jQuery(`[name="item_meta[${option.replace(`field`, ``)}]"]`)
                 if (field.length > 0) {
-                    option = field.val()
+                    const field_value = field.val()
                     rbundle_html_table_case_dropdown_option_field_value(table, tr, td, option_index, field)
+                    if (field.is(`[type="text"]`)) return `<option value="${field_value}">${field_value}</option>`
+                    else if (field.is(`select`)) {
+                        var xoptions = []
+                        field.find(`option`).each(function () {
+                            const xoption = jQuery(this)
+                            const xvalue = xoption.attr(`value`)
+                            const xopt = `<option value="${xvalue}">${xvalue}</option>`
+                            if (0 > xoptions.indexOf(xopt)) xoptions.push(xopt)
+                        })
+                        for (var o in xoptions) if (-1 < xoptions[o].indexOf(`value="${field_value}"`)) xoptions[o] = xoptions[o].replace(`value`, `selected xvalue`)
+                        return xoptions.join(``)
+                    }
                 }
-            }
-            return `<option value="${option}">${option}</option>`
+            } else return `<option value="${option}">${option}</option>`
         }).join(``)
         result = `<select>${options}</select>`
         if (there_is_other) result += `<input type="text" class="form-control" style="height: 34px; display: none">`
