@@ -456,7 +456,6 @@ function rbundle_html_table_delete_row(table, dt, tr) {
 }
 
 function rbundle_html_table_add_row(table, dt, tr) {
-    console.log((new Date()).getTime(), `rbundle_html_table_add_row(table, dt, tr)`)
     var data = dt.rows().data()
     table.find(`tbody tr`).each(function () {
         const idx = jQuery(this).index()
@@ -563,14 +562,13 @@ function rbundle_html_table_update_tbody_special_case_datepicker(target, tr, td)
 
 function rbundle_html_table_update_tbody_special_case_currency(table_id, target_cell, tr, td) {
     target_cell.blur(function () {
-        console.log((new Date()).getTime(), `rbundle_html_table_update_tbody_special_case_currency(table_id, target_cell, tr, td)`)
         rbundle_html_table_reset_error(target_cell)
         const number = target_cell.html().replace(`$`, ``).replace(`,`, ``)
         if (`` === number) { }
         else if (isNaN(number)) rbundle_html_table_show_error(target_cell, `Numbers only`)
         else {
             target_cell.html(numeral(target_cell.html()).format('$0,0.00'))
-            target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)// henrisusanto
+            target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)
         }
     })
 }
@@ -994,7 +992,6 @@ function rbundle_html_table_fed_tr_amend(table, dt) {
         .off(`blur.${rbundle_html_table_fed_tr_amend_event}`)
     nol_element
         .on(`blur.${rbundle_html_table_fed_tr_amend_event}`, () => {
-            console.log((new Date()).getTime(), `rbundle_html_table_fed_tr_amend(table, dt)`, parseInt(nol_element.text().replace(`$`, ``).replace(`,`, ``)))
             rbundle_html_table_fed_tr_amend(table, dt)
         })
     table.find(`tbody`).find(`tr`).find(`td`).eq(offset_td)
