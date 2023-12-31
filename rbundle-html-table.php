@@ -55,7 +55,7 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
 
     $a_attr['class'] = 'table rbundle-html-table';
 
-    wp_register_script('bootstrap', 'https://cdn.usebootstrap.com/bootstrap/3.3.7/js/bootstrap.min.js');
+    wp_register_script('bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js');
     wp_enqueue_script('bootstrap');
 
     wp_register_style('datatables', 'https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css');
