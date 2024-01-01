@@ -1017,8 +1017,10 @@ function rbundle_html_table_fed_tr_amend(table, dt) {
     const formed_year_field_value = parseInt(formed_year_field_element.val())
 
     const tr = table.find(`tbody`).find(`tr`).last().index()
-    if (3 > tr && year_end_value > formed_year_field_value) rbundle_html_table_add_row(table, dt, tr)
-    else if (0 < nol_value || expected_offset_value == offset_value) rbundle_html_table_add_row(table, dt, tr)
+    if (year_end_value > formed_year_field_value) {
+        if (3 > tr) rbundle_html_table_add_row(table, dt, tr)
+        else if (0 < nol_value || expected_offset_value == offset_value) rbundle_html_table_add_row(table, dt, tr)
+    }
 
     const rbundle_html_table_fed_tr_amend_event = `rbundle_html_table_fed_tr_amend_${table.attr(`id`)}`
     formed_year_field_element
