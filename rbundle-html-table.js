@@ -380,6 +380,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     // tbody=",,tax-year-end-by-field###,,"
     else if (formula.startsWith(`tax-year-end-by-field`)) {
         result = rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, result, predefined)
+        predefined = result// always recalculate
     }
     else if (formula.startsWith(`TY-dash-index-minus-`)) {
         const num = formula.replace(`TY-dash-index-minus-`, ``)
@@ -498,7 +499,6 @@ function rbundle_html_table_add_row(table, dt, tr) {
 
     var tax_year_end_by_field_td = -1
     for (var tb in tbody) if (tbody[tb].startsWith(`tax-year-end-by-field`)) tax_year_end_by_field_td = tb
-    if (0 < tax_year_end_by_field_td) data = rbundle_html_table_add_row_case_tax_year_end_by_field(dt, table, tax_year_end_by_field_td, data)
 
     rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
 }
@@ -512,11 +512,6 @@ function rbundle_html_table_add_row_case_year_index(year_index_td, data) {
     for (var tr = 0; tr < data.length; tr++) {
         data[tr][year_index_td] = `Current year - ${tr}`
     }
-    return data
-}
-
-function rbundle_html_table_add_row_case_tax_year_end_by_field(dt, table, td, data) {
-    for (var tr = 0; tr < data.length; tr++) data[tr][td] = rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, '', null)
     return data
 }
 
