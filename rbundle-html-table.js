@@ -328,9 +328,10 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
                 const field = jQuery(`[name="item_meta[${option.replace(`field`, ``)}]"]`)
                 if (field.length > 0) {
                     const field_value = field.val()
-                    rbundle_html_table_case_dropdown_option_field_value(table, tr, td, option_index, field)
-                    if (field.is(`[type="text"]`)) return `<option value="${field_value}">${field_value}</option>`
-                    else if (field.is(`select`)) {
+                    if (field.is(`[type="text"]`)) {
+                        rbundle_html_table_case_dropdown_option_text_field_value(table, tr, td, option_index, field)
+                        return `<option value="${field_value}">${field_value}</option>`
+                    } else if (field.is(`select`)) {
                         var xoptions = []
                         field.find(`option`).each(function () {
                             const xoption = jQuery(this)
@@ -339,6 +340,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
                             if (0 > xoptions.indexOf(xopt)) xoptions.push(xopt)
                         })
                         for (var o in xoptions) if (-1 < xoptions[o].indexOf(`value="${field_value}"`)) xoptions[o] = xoptions[o].replace(`value`, `selected xvalue`)
+                        rbundle_html_table_case_dropdown_option_select_field_value(table, tr, td, field)
                         return xoptions.join(``)
                     }
                 }
@@ -901,14 +903,26 @@ function rbundle_html_table_attribute_reference(table) {
     }
 }
 
-function rbundle_html_table_case_dropdown_option_field_value(table, tr, td, option_index, field) {
+function rbundle_html_table_case_dropdown_option_text_field_value(table, tr, td, option_index, field) {
     const table_id = table.attr(`id`)
-    const evt = `change.rbundle_html_table_case_dropdown_option_field_value_${table_id}_${tr}_${td}_${option_index}`
+    const evt = `change.rbundle_html_table_case_dropdown_option_text_field_value_${table_id}_${tr}_${td}_${option_index}`
     field.off(evt).on(evt, function () {
         const val = field.val()
         const target = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td).find(`option`).eq(option_index)
         target.prop(`value`, val)
         target.html(val)
+    })
+}
+
+function rbundle_html_table_case_dropdown_option_select_field_value(table, tr, td, field) {
+    const table_id = table.attr(`id`)
+    const evt = `change.rbundle_html_table_case_dropdown_option_select_field_value_${table_id}_${tr}_${td}`
+    field.off(evt).on(evt, function () {
+        const val = field.val()
+        const target_dropdown = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td).find(`select`)
+        const target_option = target_dropdown.find(`option[value="${val}"]`)
+        target_dropdown.find(`option`).attr(`selected`, false)
+        target_option.attr(`selected`, true)
     })
 }
 
