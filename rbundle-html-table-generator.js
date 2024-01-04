@@ -190,7 +190,7 @@ jQuery(`#run_reverse_formula`).click(function (event) {
                 for (var tdi = 0; tdi <= tds.length; tdi++) jQuery(`[name="tooltip-header[]"]`).eq(tdi).val(undefined == tds[tdi] ? `` : tds[tdi].replaceAll('`', ``)).trigger(`keyup`)
                     ; break
             case `row-count`:
-                jQuery(`[name="number of rows"]`).eq(0).click()
+                jQuery(`[name="number of rows"]`).eq(!isNaN(attr_value) ? 0 : 1).click()
                 jQuery(`[name="value number of rows"]`).val(attr_value).trigger(`keyup`)
                     ; break
         }
