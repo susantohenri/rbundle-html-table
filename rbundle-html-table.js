@@ -105,7 +105,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     }
 
     rbundle_html_table_update_tbody_special_case_csv(table)
-    rbundle_html_table_fed_tr_amend(table, dt)
+    rbundle_html_table_fed_tr_amend(table, dt, `year_end`, false)
 }
 
 function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
@@ -803,17 +803,19 @@ function rbundle_html_table_if_else_apply_value(target_cell, value, tr, td, pred
 
 function rbundle_html_table_show_error(target, error_message) {
     target.addClass(`invalid-cell`)
-    target.tooltip({ container: `body`, title: error_message })
-    target.tooltip(`show`)
+    target.attr(`title`, error_message)
+    const error_tooltip = new bootstrap.Tooltip(target)
+
     target.focus(() => {
         target.removeClass(`invalid-cell`)
-        target.tooltip(`destroy`)
+        error_tooltip.dispose()
     })
 }
 
 function rbundle_html_table_reset_error(target) {
     target.removeClass(`invalid-cell`)
-    target.tooltip(`destroy`)
+    const error_tooltip = new bootstrap.Tooltip(target)
+    error_tooltip.dispose()
 }
 
 function rbundle_html_table_attribute_reference(table) {
@@ -997,7 +999,7 @@ function rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, result, pre
 }
 
 // row-count="fed-tr-amend-open-column2-field4387-column10-column11:Total Offset"
-function rbundle_html_table_fed_tr_amend(table, dt) {
+function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, is_triggered_by_last_tr) {
     const row_count_formula = table.attr(`row-count`)
     if (!row_count_formula.startsWith(`fed-tr-amend-open-column`)) return;
 
@@ -1016,28 +1018,51 @@ function rbundle_html_table_fed_tr_amend(table, dt) {
     const offset_value = offset_element.val()
     const formed_year_field_value = parseInt(formed_year_field_element.val())
 
+    const is_end_year_match = year_end_value > formed_year_field_value
     const tr = table.find(`tbody`).find(`tr`).last().index()
-    if (year_end_value > formed_year_field_value) {
-        if (3 > tr) rbundle_html_table_add_row(table, dt, tr)
-        else if (0 < nol_value || expected_offset_value == offset_value) rbundle_html_table_add_row(table, dt, tr)
+    switch (trigger_field) {
+        case `year_end`:
+            if (is_end_year_match && 3 > tr) rbundle_html_table_add_row(table, dt, tr)
+                ; break
+        case `nol`:
+            const is_nol_match = 0 < nol_value
+            if (is_end_year_match && is_nol_match && is_triggered_by_last_tr) rbundle_html_table_add_row(table, dt, tr)
+            if (tr > 3 && !is_nol_match && !is_triggered_by_last_tr) rbundle_html_table_delete_row(table, dt, tr)
+                ; break
+        case `offset`:
+            const is_offset_match = expected_offset_value == offset_value
+            if (is_end_year_match && is_offset_match && is_triggered_by_last_tr) rbundle_html_table_add_row(table, dt, tr)
+            if (tr > 3 && !is_offset_match && !is_triggered_by_last_tr) rbundle_html_table_delete_row(table, dt, tr)
+                ; break
     }
 
     const rbundle_html_table_fed_tr_amend_event = `rbundle_html_table_fed_tr_amend_${table.attr(`id`)}`
     formed_year_field_element
         .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
         .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
-            rbundle_html_table_fed_tr_amend(table, dt)
+            rbundle_html_table_fed_tr_amend(table, dt, `year_end`, false)
         })
-    table.find(`tbody`).find(`tr`).find(`td`).eq(nol_td)
-        .off(`blur.${rbundle_html_table_fed_tr_amend_event}`)
-    nol_element
-        .on(`blur.${rbundle_html_table_fed_tr_amend_event}`, () => {
-            rbundle_html_table_fed_tr_amend(table, dt)
-        })
-    table.find(`tbody`).find(`tr`).find(`td`).eq(offset_td)
-        .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
-    offset_element
-        .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
-            rbundle_html_table_fed_tr_amend(table, dt)
-        })
+
+    const total_rows = table.find(`tbody`).find(`tr`).length
+    const rows_to_bind = [total_rows - 1, total_rows - 2]
+    table.find(`tbody`).find(`tr`).each(function () {
+        const tr_to_bind = jQuery(this)
+        const tr_to_bind_index = tr_to_bind.index()
+        const is_triggered_by_last_tr = tr_to_bind_index === total_rows - 1
+
+        const nol_to_bind = tr_to_bind.find(`td`).eq(nol_td)
+        nol_to_bind.off(`blur.${rbundle_html_table_fed_tr_amend_event}`)
+
+        const offset_to_bind = tr_to_bind.find(`td`).eq(offset_td).find(`select`)
+        offset_to_bind.off(`change.${rbundle_html_table_fed_tr_amend_event}`)
+
+        if (-1 < rows_to_bind.indexOf(tr_to_bind_index)) {
+            nol_to_bind.on(`blur.${rbundle_html_table_fed_tr_amend_event}`, () => {
+                rbundle_html_table_fed_tr_amend(table, dt, `nol`, is_triggered_by_last_tr)
+            })
+            offset_to_bind.on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
+                rbundle_html_table_fed_tr_amend(table, dt, `offset`, is_triggered_by_last_tr)
+            })
+        }
+    })
 }
