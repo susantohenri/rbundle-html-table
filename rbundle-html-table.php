@@ -185,7 +185,7 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
     // table reference different form: end
 
     $s_attr = '';
-    foreach ($a_attr as $attr => $values) $s_attr .= "{$attr} = '{$values}'";
+    foreach ($a_attr as $attr => $values) $s_attr .= "{$attr} = \"{$values}\"";
     return "<table {$s_attr}></table>";
 });
 

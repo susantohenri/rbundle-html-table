@@ -87,7 +87,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     dt.rows.add(body).draw()
 
     if (!data) {
-        if (table.attr('restrict-delete-default-row')) table.find(`tbody tr`).attr(`default-row`, true)
+        if (table.attr(`restrict-delete-default-row`)) table.find(`tbody tr`).attr(`default-row`, true)
         table.find(`tbody tr`).each(function () {
             jQuery(this).attr(`read-only-index`, jQuery(this).index() + 1)
         })
@@ -597,7 +597,7 @@ function rbundle_html_table_update_tbody_special_case_currency(table_id, target_
         if (`` === number) { }
         else if (isNaN(number)) rbundle_html_table_show_error(target_cell, `Numbers only`)
         else {
-            target_cell.html(numeral(target_cell.html()).format('$0,0.00'))
+            target_cell.html(numeral(target_cell.html()).format(`$0,0.00`))
             target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)
         }
     })
