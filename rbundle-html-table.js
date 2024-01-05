@@ -550,6 +550,7 @@ function rbundle_html_table_update_thead_special_case_tooltip(table) {
     if (!thead_data_tooltip) return false
     thead_data_tooltip = thead_data_tooltip.split(`,`)
     for (var th = 0; th < thead_data_tooltip.length; th++) {
+        if (`` === thead_data_tooltip[th]) continue;
         const thead_target = table.find(`thead`).find(`tr`).find(`th`).eq(th)
         thead_target.append(`<i class="fa fa-icon fa-info-circle" style="font-size: 65%; vertical-align:super; color: blue;">&nbsp;`)
         const i = thead_target.find(`i.fa`)
