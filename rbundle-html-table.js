@@ -159,6 +159,8 @@ function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
 }
 
 function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined) {
+    if (1 > table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td).length) return false
+
     const table_id = table.attr(`id`)
     var result = ``
     var contenteditable = true
