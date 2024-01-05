@@ -932,6 +932,7 @@ function rbundle_html_table_case_dropdown_option_select_field_value(table, tr, t
         target_dropdown.find(`option`).attr(`selected`, false)
         target_dropdown.find(`option[${identifier}]`).remove()
         target_dropdown.prepend(`<option ${identifier}="true" value="${field_selected_value}" selected>${option_to_show}</option>`)
+        target_dropdown.trigger(`change`)
     })
 }
 
