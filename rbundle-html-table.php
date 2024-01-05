@@ -289,7 +289,7 @@ today-tax-year-by-field### (will show: if field###/current-year < today then fie
 
 tax-year-end-by-field (will show like above but the year number will be deducted by row number, starting from 0)
 
-fed-tax-dl-column-#-column-# (first column for date, & last column for entity type: Pass-Through, Taxable, Exempt)
+fed-tax-dl-column-#-column-#-column-# (first column for date, second column for entity type: Pass-Through, Taxable, Exempt, third column for "Granted extension and filed")
 
 fed-tr-amend-open-column##-field###-column##-column##:dropdown value here (use this for dynamic number of rows)
 

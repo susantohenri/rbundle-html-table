@@ -940,6 +940,8 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
     const parsed_formula = formula.split(`-column-`)
     const date_td = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(parseInt(parsed_formula[1]) - 1)
     const entity = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(parseInt(parsed_formula[2]) - 1).find(`select`)
+    const filling_status = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(parseInt(parsed_formula[3]) - 1).find(`select`)
+
     const date_to_show = new Date(date_td.html())
     const days_to_add = 15
     var months_to_add = 2
@@ -950,6 +952,8 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
         case `Taxable`: months_to_add = 3; break
         case `Exempt`: months_to_add = 4; break
     }
+    if (`Granted extension and filed` === filling_status.val()) months_to_add = 6
+
     const translated_month = date_to_show.getMonth()
     date_to_show.setMonth(translated_month + months_to_add)
     if (0 === date_to_show.getDay()) date_to_show.setDate(date_to_show.getDate() + 1)// sunday
@@ -958,22 +962,27 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
     date_td
         .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
         .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
-            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, null)
         })
     date_td
         .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
         .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
-            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, null)
         })
     entity
         .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
         .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
-            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, null)
         })
     entity
         .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
         .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
-            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predefined)
+            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, null)
+        })
+    filling_status
+        .off(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`)
+        .on(`change.rbundle_html_table_update_tbody_cell_${table_id}_${tr}_${td}`, function () {
+            rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, null)
         })
     return date_to_show.toLocaleDateString()
 }
