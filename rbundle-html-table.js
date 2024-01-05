@@ -332,18 +332,14 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
                         rbundle_html_table_case_dropdown_option_text_field_value(table, tr, td, option_index, field)
                         return `<option value="${field_value}">${field_value}</option>`
                     } else if (field.is(`select`)) {
-                        var xoptions = []
-                        field.find(`option`).each(function () {
-                            const xoption = jQuery(this)
-                            const xvalue = xoption.attr(`value`)
-                            const xopt = `<option value="${xvalue}">${xvalue}</option>`
-                            if (0 > xoptions.indexOf(xopt)) xoptions.push(xopt)
-                        })
-                        for (var o in xoptions) if (-1 < xoptions[o].indexOf(`value="${field_value}"`)) xoptions[o] = xoptions[o].replace(`value`, `selected xvalue`)
-                        rbundle_html_table_case_dropdown_option_select_field_value(table, tr, td, field)
-                        return xoptions.join(``)
+                        rbundle_html_table_case_dropdown_option_select_field_value(table, tr, td, field, option)
+                        return false
                     }
                 }
+            } else if (option.startsWith(`hidden-field`)) {
+                const field = jQuery(`[name="item_meta[${option.replace(`hidden-field`, ``)}]"]`)
+                rbundle_html_table_case_dropdown_option_select_field_value(table, tr, td, field, option)
+                return false
             } else return `<option value="${option}">${option}</option>`
         }).join(``)
         result = `<select>${options}</select>`
@@ -918,15 +914,22 @@ function rbundle_html_table_case_dropdown_option_text_field_value(table, tr, td,
     })
 }
 
-function rbundle_html_table_case_dropdown_option_select_field_value(table, tr, td, field) {
+function rbundle_html_table_case_dropdown_option_select_field_value(table, tr, td, field, formula) {
     const table_id = table.attr(`id`)
-    const evt = `change.rbundle_html_table_case_dropdown_option_select_field_value_${table_id}_${tr}_${td}`
+    const identifier = `rbundle_html_table_case_dropdown_option_select_field_value_${table_id}_${tr}_${td}`
+    const evt = `change.${identifier}`
+
     field.off(evt).on(evt, function () {
-        const val = field.val()
+        const field_selected_option = field.find(`option:selected`)
+        const field_selected_value = field_selected_option.attr(`value`)
+        const field_selected_text = field_selected_option.text()
+
         const target_dropdown = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td).find(`select`)
-        const target_option = target_dropdown.find(`option[value="${val}"]`)
+        const option_to_show = formula.startsWith(`hidden-field`) ? field_selected_value : field_selected_text
+
         target_dropdown.find(`option`).attr(`selected`, false)
-        target_option.attr(`selected`, true)
+        target_dropdown.find(`option[${identifier}]`).remove()
+        target_dropdown.prepend(`<option ${identifier}="true" value="${field_selected_value}" selected>${option_to_show}</option>`)
     })
 }
 
