@@ -105,7 +105,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     }
 
     rbundle_html_table_update_tbody_special_case_csv(table)
-    rbundle_html_table_fed_tr_amend(table, dt, `year_end`, false)
+    rbundle_html_table_fed_tr_amend(table, dt, `rbundle_html_table_update_tbody`, false)
 }
 
 function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
@@ -1041,6 +1041,12 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, is_triggered_
     const tr = table.find(`tbody`).find(`tr`).last().index()
     switch (trigger_field) {
         case `year_end`:
+            for (tr_to_remove = table.find(`tbody`).find(`tr`).length; tr_to_remove >= 0; tr_to_remove--) {
+                const row_to_remove = table.find(`tbody`).find(`tr`).eq(tr_to_remove)
+                const row_year = parseInt(row_to_remove.find(`td`).eq(year_end_td).text().split(`/`)[2])
+                if (row_year < formed_year_field_value) rbundle_html_table_delete_row(table, dt, tr_to_remove)
+            }
+        case `rbundle_html_table_update_tbody`:
             if (is_end_year_match && 3 > tr) rbundle_html_table_add_row(table, dt, tr)
                 ; break
         case `nol`:
@@ -1057,9 +1063,9 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, is_triggered_
 
     const rbundle_html_table_fed_tr_amend_event = `rbundle_html_table_fed_tr_amend_${table.attr(`id`)}`
     formed_year_field_element
-        .off(`change.${rbundle_html_table_fed_tr_amend_event}`)
-        .on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
-            rbundle_html_table_fed_tr_amend(table, dt, `year_end`, false)
+        .off(`keyup.${rbundle_html_table_fed_tr_amend_event}`)
+        .on(`keyup.${rbundle_html_table_fed_tr_amend_event}`, () => {
+            if (1900 < parseInt(formed_year_field_element.val())) rbundle_html_table_fed_tr_amend(table, dt, `year_end`, false)
         })
 
     const total_rows = table.find(`tbody`).find(`tr`).length
