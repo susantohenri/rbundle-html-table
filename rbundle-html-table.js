@@ -1022,18 +1022,18 @@ function rbundle_html_table_tax_year_end_by_field(dt, table, tr, td, result, pre
 }
 
 // row-count="fed-tr-amend-open-column2-field4387-column10-column11:Total Offset"
-function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, is_triggered_by_last_tr) {
+function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_index) {
     const row_count_formula = table.attr(`row-count`)
     if (!row_count_formula.startsWith(`fed-tr-amend-open-column`)) return;
 
     const [unused, year_end_td, nol_td, offset_td] = row_count_formula.replace(`fed-tr-amend-open`, ``).split(`-column`).map(part => parseInt(part.split(`-`)[0]) - 1)
     const formed_year_field_id = row_count_formula.split(`field`)[1].split(`-`)[0]
     const expected_offset_value = row_count_formula.split(`:`)[1]
-    const last_tr_tds = table.find(`tbody`).find(`tr`).last().find(`td`)
+    const triggering_tr_tds = table.find(`tbody`).find(`tr`).eq(trigger_tr_index).find(`td`)
 
-    const year_end_element = last_tr_tds.eq(year_end_td)
-    const nol_element = last_tr_tds.eq(nol_td)
-    const offset_element = last_tr_tds.eq(offset_td).find(`select`)
+    const year_end_element = triggering_tr_tds.eq(year_end_td)
+    const nol_element = triggering_tr_tds.eq(nol_td)
+    const offset_element = triggering_tr_tds.eq(offset_td).find(`select`)
     const formed_year_field_element = jQuery(`[name="item_meta[${formed_year_field_id}]"]`)
 
     const year_end_value = parseInt(year_end_element.text().split(`/`)[2])
@@ -1041,6 +1041,7 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, is_triggered_
     const offset_value = offset_element.val()
     const formed_year_field_value = parseInt(formed_year_field_element.val())
 
+    const is_triggered_by_last_tr = trigger_tr_index === table.find(`tbody`).find(`tr`).length - 1
     const is_end_year_match = year_end_value > formed_year_field_value
     const tr = table.find(`tbody`).find(`tr`).last().index()
     switch (trigger_field) {
@@ -1087,10 +1088,10 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, is_triggered_
 
         if (-1 < rows_to_bind.indexOf(tr_to_bind_index)) {
             nol_to_bind.on(`blur.${rbundle_html_table_fed_tr_amend_event}`, () => {
-                rbundle_html_table_fed_tr_amend(table, dt, `nol`, is_triggered_by_last_tr)
+                rbundle_html_table_fed_tr_amend(table, dt, `nol`, tr_to_bind_index)
             })
             offset_to_bind.on(`change.${rbundle_html_table_fed_tr_amend_event}`, () => {
-                rbundle_html_table_fed_tr_amend(table, dt, `offset`, is_triggered_by_last_tr)
+                rbundle_html_table_fed_tr_amend(table, dt, `offset`, tr_to_bind_index)
             })
         }
     })
