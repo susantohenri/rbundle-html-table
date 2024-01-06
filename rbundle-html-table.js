@@ -956,7 +956,7 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
         case `Taxable`: months_to_add = 3; break
         case `Exempt`: months_to_add = 4; break
     }
-    if (`Granted extension and filed` === filling_status.val()) months_to_add = 6
+    if (`Granted extension and filed` === filling_status.val()) months_to_add += 6
 
     const translated_month = date_to_show.getMonth()
     date_to_show.setMonth(translated_month + months_to_add)
