@@ -1029,7 +1029,10 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_in
     const [unused, year_end_td, nol_td, offset_td] = row_count_formula.replace(`fed-tr-amend-open`, ``).split(`-column`).map(part => parseInt(part.split(`-`)[0]) - 1)
     const formed_year_field_id = row_count_formula.split(`field`)[1].split(`-`)[0]
     const expected_offset_value = row_count_formula.split(`:`)[1]
-    const triggering_tr_tds = table.find(`tbody`).find(`tr`).eq(trigger_tr_index).find(`td`)
+    const table_rows = table.find(`tbody`).find(`tr`)
+
+    if (`year_end` === trigger_field) trigger_tr_index = table_rows.length - 1// on year change, check last row
+    const triggering_tr_tds = table_rows.eq(trigger_tr_index).find(`td`)
 
     const year_end_element = triggering_tr_tds.eq(year_end_td)
     const nol_element = triggering_tr_tds.eq(nol_td)
@@ -1041,9 +1044,11 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_in
     const offset_value = offset_element.val()
     const formed_year_field_value = parseInt(formed_year_field_element.val())
 
-    const is_triggered_by_last_tr = trigger_tr_index === table.find(`tbody`).find(`tr`).length - 1
+    const is_triggered_by_last_tr = trigger_tr_index === table_rows.length - 1
     const is_end_year_match = year_end_value > formed_year_field_value
-    const tr = table.find(`tbody`).find(`tr`).last().index()
+    const is_nol_match = 0 < nol_value
+    const is_offset_match = expected_offset_value == offset_value
+    const tr = table_rows.last().index()
     switch (trigger_field) {
         case `year_end`:
             for (tr_to_remove = table.find(`tbody`).find(`tr`).length; tr_to_remove >= 0; tr_to_remove--) {
@@ -1052,15 +1057,13 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_in
                 if (row_year < formed_year_field_value) rbundle_html_table_delete_row(table, dt, tr_to_remove)
             }
         case `rbundle_html_table_update_tbody`:
-            if (is_end_year_match && 3 > tr) rbundle_html_table_add_row(table, dt, tr)
+            if (is_end_year_match && (3 > tr || is_nol_match || is_offset_match)) rbundle_html_table_add_row(table, dt, tr)
                 ; break
         case `nol`:
-            const is_nol_match = 0 < nol_value
             if (is_end_year_match && is_nol_match && is_triggered_by_last_tr) rbundle_html_table_add_row(table, dt, tr)
             if (tr > 3 && !is_nol_match && !is_triggered_by_last_tr) rbundle_html_table_delete_row(table, dt, tr)
                 ; break
         case `offset`:
-            const is_offset_match = expected_offset_value == offset_value
             if (is_end_year_match && is_offset_match && is_triggered_by_last_tr) rbundle_html_table_add_row(table, dt, tr)
             if (tr > 3 && !is_offset_match && !is_triggered_by_last_tr) rbundle_html_table_delete_row(table, dt, tr)
                 ; break
@@ -1073,12 +1076,12 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_in
             if (1900 < parseInt(formed_year_field_element.val())) rbundle_html_table_fed_tr_amend(table, dt, `year_end`, false)
         })
 
-    const total_rows = table.find(`tbody`).find(`tr`).length
-    const rows_to_bind = [total_rows - 1, total_rows - 2]
+    const total_rows_after_run = table.find(`tbody`).find(`tr`).length
+    const rows_to_bind = [total_rows_after_run - 1, total_rows_after_run - 2]
     table.find(`tbody`).find(`tr`).each(function () {
         const tr_to_bind = jQuery(this)
         const tr_to_bind_index = tr_to_bind.index()
-        const is_triggered_by_last_tr = tr_to_bind_index === total_rows - 1
+        const is_triggered_by_last_tr = tr_to_bind_index === total_rows_after_run - 1
 
         const nol_to_bind = tr_to_bind.find(`td`).eq(nol_td)
         nol_to_bind.off(`blur.${rbundle_html_table_fed_tr_amend_event}`)
