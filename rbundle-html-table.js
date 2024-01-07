@@ -1066,6 +1066,7 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_in
         case `offset`:
             if (is_end_year_match && is_offset_match && is_triggered_by_last_tr) rbundle_html_table_add_row(table, dt, tr)
             if (tr > 3 && !is_offset_match && !is_triggered_by_last_tr) rbundle_html_table_delete_row(table, dt, tr)
+            table.find(`tbody`).find(`tr`).eq(trigger_tr_index).find(`td`).eq(offset_td).find(`select`).val(offset_value)// fix offset dropdown not updating
                 ; break
     }
 
@@ -1081,7 +1082,6 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_in
     table.find(`tbody`).find(`tr`).each(function () {
         const tr_to_bind = jQuery(this)
         const tr_to_bind_index = tr_to_bind.index()
-        const is_triggered_by_last_tr = tr_to_bind_index === total_rows_after_run - 1
 
         const nol_to_bind = tr_to_bind.find(`td`).eq(nol_td)
         nol_to_bind.off(`blur.${rbundle_html_table_fed_tr_amend_event}`)
