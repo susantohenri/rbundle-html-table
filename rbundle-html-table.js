@@ -1031,7 +1031,7 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_in
     const expected_offset_value = row_count_formula.split(`:`)[1]
     const table_rows = table.find(`tbody`).find(`tr`)
 
-    if (`year_end` === trigger_field) trigger_tr_index = table_rows.length - 1// on year change, check last row
+    if (-1 < [`year_end`, `rbundle_html_table_update_tbody`].indexOf(trigger_field)) trigger_tr_index = table_rows.length - 1// on year change, check last row
     const triggering_tr_tds = table_rows.eq(trigger_tr_index).find(`td`)
 
     const year_end_element = triggering_tr_tds.eq(year_end_td)
