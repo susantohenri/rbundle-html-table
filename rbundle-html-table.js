@@ -621,6 +621,7 @@ function rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, 
         if (`` === selected) target_cell.addClass(`invalid-cell`)
         else target_cell.removeClass(`invalid-cell`)
 
+        target_cell.find(`option`).attr(`selected`, false)
         target_cell.find(`option[value="${selected}"]`).attr(`selected`, true)
         const table_id = target_cell.parents(`table`).attr(`id`)
         target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)
