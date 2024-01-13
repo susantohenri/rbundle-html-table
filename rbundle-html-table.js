@@ -948,14 +948,14 @@ function rbundle_html_table_fed_tax(table, tr, td, dt, predefined) {
     const filling_status = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(parseInt(parsed_formula[3]) - 1).find(`select`)
 
     const date_to_show = new Date(date_td.html())
-    const days_to_add = 15
+    const deadline_date = 15
     var months_to_add = 2
 
-    date_to_show.setDate(date_to_show.getDate() + days_to_add)
+    date_to_show.setDate(deadline_date)
     switch (entity.val()) {
-        case `Pass-Through`: months_to_add = 2; break
-        case `Taxable`: months_to_add = 3; break
-        case `Exempt`: months_to_add = 4; break
+        case `Pass-Through`: months_to_add = 3; break
+        case `Taxable`: months_to_add = 4; break
+        case `Exempt`: months_to_add = 5; break
     }
     if (`Granted extension and filed` === filling_status.val()) months_to_add += 6
 
