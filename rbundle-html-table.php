@@ -79,7 +79,7 @@ add_shortcode('rbundle-html-table', function ($a_attr) {
         $load_datepicker = $load_datepicker || count($tbody_datepicker) > 0;
 
         $tbody_numeral = array_filter(explode(',', $a_attr['tbody']), function ($td) {
-            return strpos($td, 'currency-format') > -1;
+            return strpos($td, 'currency-format') > -1 || strpos($td, '%percent') > -1;
         });
         $load_numeral = $load_numeral || count($tbody_numeral) > 0;
     }
@@ -322,6 +322,8 @@ dropdown:|option-1|other <== for allow write-in values
 dropdown-by-field###
 
 zipcode-validation
+
+%percent
 
 currency-format
 

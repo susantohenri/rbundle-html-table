@@ -82,6 +82,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (`index` === formula) { }
         else if (`read-only-index` === formula) { }
         else if (`zipcode-validation` === formula) { }
+        else if (`%percent` === formula) { }
         else if (`date-picker` === formula) { }
         else if (formula.indexOf(`currency-format`) > 1) { }
         else if (formula.startsWith(`if`)) { }

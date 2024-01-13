@@ -439,6 +439,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     if (formula.startsWith(`dropdown:`)) rbundle_html_table_update_tbody_special_case_dropdown(dt, target_cell, tr, td)
     if (is_currency) rbundle_html_table_update_tbody_special_case_currency(table_id, target_cell, tr, td)
     if (`zipcode-validation` === formula) rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td)
+    if (`%percent` === formula) rbundle_html_table_update_tbody_special_case_percent(table_id, target_cell, tr, td)
     if (formula.startsWith(`if`)) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
 }
 
@@ -635,6 +636,20 @@ function rbundle_html_table_update_tbody_special_case_zipcode_validation(target_
         if (zipcode.length === 9 && 0 > zipcode.indexOf(`-`)) zipcode = zipcode.slice(0, 5) + `-` + zipcode.slice(5)
         if (/(^\d{5}$)|(^\d{5}-\d{4}$)/.test(zipcode)) target_cell.html(zipcode)
         else rbundle_html_table_show_error(target_cell, `Invalid ZIP Code`)
+    })
+}
+
+function rbundle_html_table_update_tbody_special_case_percent(table_id, target_cell, tr, td) {
+    target_cell.blur(() => {
+        rbundle_html_table_reset_error(target_cell)
+        let number = target_cell.html().replace(`%`, ``).replace(`,`, ``)
+        if (`` === number) { }
+        else if (isNaN(number)) rbundle_html_table_show_error(target_cell, `Numbers only`)
+        else {
+            number = parseFloat(number) / 100
+            target_cell.html(numeral(number).format(`0.00%`))
+            target_cell.trigger(`blur.contenteditable_${table_id}_${tr}_${td}`)
+        }
     })
 }
 
