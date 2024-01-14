@@ -1,3 +1,4 @@
+let rbundle_datatable_objects = {}
 jQuery(`table.rbundle-html-table`).each(function () {
     const table = jQuery(this)
     const table_id = table.attr(`id`)
@@ -22,6 +23,7 @@ function rbundle_html_table_draw_table(table) {
     })
 
     const dt = new DataTable(table, dt_options)
+    rbundle_datatable_objects[table.attr(`id`)] = dt
     if (0 < thead_length) {
         rbundle_html_table_update_thead(thead, dt, table)
         if (undefined !== table.attr(`tbody`)) {
@@ -65,6 +67,7 @@ function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
     }
 
     jQuery(dt.column(th).header()).text(result)
+    rbundle_html_table_table_in_page(`rbundle_html_table_update_thead_cell`, table, th)
 }
 
 function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
@@ -105,6 +108,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
 
     rbundle_html_table_update_tbody_special_case_csv(table)
     rbundle_html_table_fed_tr_amend(table, dt, `rbundle_html_table_update_tbody`, false)
+    rbundle_html_table_table_in_page(`rbundle_html_table_update_tbody`, table, 0)
 }
 
 function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
@@ -440,6 +444,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
     if (`zipcode-validation` === formula) rbundle_html_table_update_tbody_special_case_zipcode_validation(target_cell, tr, td)
     if (`%percent` === formula) rbundle_html_table_update_tbody_special_case_percent(table_id, target_cell, tr, td)
     if (formula.startsWith(`if`)) rbundle_html_table_update_tbody_special_case_if_else(target_cell, formula, tr, td, predefined)
+    rbundle_html_table_table_in_page(`rbundle_html_table_update_tbody_cell`, table, td)
 }
 
 function rbundle_html_table_content_editable(table, dt, tr) {
@@ -1030,5 +1035,61 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_in
                 rbundle_html_table_fed_tr_amend(table, dt, `offset`, tr_to_bind_index)
             })
         }
+    })
+}
+
+function rbundle_html_table_table_in_page(triggering_function, reference_table, reference_td) {
+    const reference_table_id = reference_table.attr(`id`)
+    jQuery(`table`).not(reference_table).each(function () {
+        const table = jQuery(this)
+        if (0 > `${table.attr(`row-count`)} ${table.attr(`thead`)} ${table.attr(`tbody`)}`.indexOf(`table-in-page|`)) return false;
+
+        const dt = rbundle_datatable_objects[table.attr(`id`)]
+        if (!dt) return false
+
+        let keyword = ``
+        let value = ``
+        switch (triggering_function) {
+            case `rbundle_html_table_update_thead_cell`:// get thead cell value
+                keyword = `table-in-page|${reference_table_id}|thead|${reference_td}`
+                value = reference_table.find(`thead`).find(`tr`).find(`th`).eq(reference_td).html()
+                    ; break
+            case `rbundle_html_table_update_tbody`:// get row count value
+                keyword = `table-in-page|${reference_table_id}|row-count`
+                value = reference_table.find(`tbody`).find(`tr`).length
+                    ; break
+            case `rbundle_html_table_update_tbody_cell`:// get tbody cell value
+                keyword = `table-in-page|${reference_table_id}|tbody|${reference_td}`
+                    ; break
+        }
+
+        const row_count_formula = table.attr(`row-count`)
+        const theads = table.attr(`thead`).split(`,`)
+        const tbodies = table.attr(`tbody`).split(`,`)
+
+        const row_count_match = row_count_formula === keyword
+        const thead_td_target = theads.indexOf(keyword)
+        const tbody_td_target = tbodies.indexOf(keyword)
+
+        if (row_count_match) {
+            const table_row_count = table.find(`tbody`).find(`tr`).length
+            if (table_row_count < value) {
+                for (var tr = table_row_count; tr <= value; tr++) {
+                    rbundle_html_table_add_row(table, dt, tr)
+                }
+            } else if (table_row_count > value) {
+                for (var tr = table_row_count; tr >= value; tr--) {
+                    rbundle_html_table_delete_row(table, dt, tr)
+                }
+            }
+        }
+
+        if (-1 < thead_td_target) table.find(`thead`).find(`tr`).eq(0).find(`th`).eq(thead_td_target).html(value).trigger(`change`)
+        if (-1 < tbody_td_target) table.find(`tbody`).find(`tr`).each(function () {
+            const row = jQuery(this)
+            const index = row.index()
+            const value = reference_table.find(`tbody`).find(`tr`).eq(index).find(`td`).eq(reference_td).html()
+            row.find(`td`).eq(reference_td).html(value).trigger(`change`)
+        })
     })
 }

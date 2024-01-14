@@ -336,6 +336,12 @@ row-count="table|#anotherTableID|row-count"
 tbody="table|#anotherTableID|tbody|4"
 
 thead="table|#anotherTableID|thead|1"
+
+row-count="table-in-page|#anothertable-in-pageID|row-count"
+
+tbody="table-in-page|#anothertable-in-pageID|tbody|4"
+
+thead="table-in-page|#anothertable-in-pageID|thead|1"
                                             </textarea>
                                         </p>
 
