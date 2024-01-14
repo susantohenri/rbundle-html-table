@@ -2,7 +2,6 @@ jQuery(`table.rbundle-html-table`).each(function () {
     const table = jQuery(this)
     const table_id = table.attr(`id`)
     if (!table_id || 1 < jQuery(`table#${table_id}`).length) table.attr(`id`, Math.random().toString().replace(`0.`, ``))
-    rbundle_html_table_attribute_reference(table)
     rbundle_html_table_draw_table(table)
 })
 
@@ -838,88 +837,6 @@ function rbundle_html_table_reset_error(target) {
     target.removeClass(`invalid-cell`)
     const error_tooltip = new bootstrap.Tooltip(target)
     error_tooltip.dispose()
-}
-
-function rbundle_html_table_attribute_reference(table) {
-
-    if (-1 < table.attr(`thead`).indexOf(`table|`)) {
-        var theads = table.attr(`thead`).split(`,`)
-        for (var th = 0; th < theads.length; th++) {
-            var thead = theads[th]
-            if (thead.startsWith(`table|`)) {
-                var formula = thead.split(`|`)
-                var taget_table_id = formula[1]
-                var target_attr = formula[2]
-                var target_table = jQuery(`table[id="${taget_table_id}"]`)
-                if (0 < target_table.length) {
-                    if (`row-count` === target_attr) theads[th] = target_table.attr(target_attr)
-                    else if (-1 < [`thead`, `tbody`].indexOf(target_attr)) {
-                        if (4 === formula.length) {
-                            var target_attr_index = formula[3]
-                            var target_attr_value = target_table.attr(target_attr)
-                            if (target_attr_value) {
-                                var target_attr_values = target_attr_value.split(`,`)
-                                var value = target_attr_values[target_attr_index - 1]
-                                if (value) theads[th] = value
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        table.attr(`thead`, theads.join(`,`))
-    }
-
-    var row_count = table.attr(`row-count`)
-    if (row_count.startsWith(`table|`)) {
-        var formula = row_count.split(`|`)
-        var taget_table_id = formula[1]
-        var target_attr = formula[2]
-        var target_table = jQuery(`table[id="${taget_table_id}"]`)
-        if (0 < target_table.length) {
-            if (`row-count` === target_attr) row_count = target_table.attr(target_attr)
-            else if (-1 < [`thead`, `tbody`].indexOf(target_attr)) {
-                if (4 === formula.length) {
-                    var target_attr_index = formula[3]
-                    var target_attr_value = target_table.attr(target_attr)
-                    if (target_attr_value) {
-                        var target_attr_values = target_attr_value.split(`,`)
-                        var value = target_attr_values[target_attr_index - 1]
-                        if (value) row_count = value
-                    }
-                }
-            }
-        }
-        table.attr(`row-count`, row_count)
-    }
-
-    if (-1 < table.attr(`tbody`).indexOf(`table|`)) {
-        var tbodies = table.attr(`tbody`).split(`,`)
-        for (var th = 0; th < tbodies.length; th++) {
-            var tbody = tbodies[th]
-            if (tbody.startsWith(`table|`)) {
-                var formula = tbody.split(`|`)
-                var taget_table_id = formula[1]
-                var target_attr = formula[2]
-                var target_table = jQuery(`table[id="${taget_table_id}"]`)
-                if (0 < target_table.length) {
-                    if (`row-count` === target_attr) tbodies[th] = target_table.attr(target_attr)
-                    else if (-1 < [`thead`, `tbody`].indexOf(target_attr)) {
-                        if (4 === formula.length) {
-                            var target_attr_index = formula[3]
-                            var target_attr_value = target_table.attr(target_attr)
-                            if (target_attr_value) {
-                                var target_attr_values = target_attr_value.split(`,`)
-                                var value = target_attr_values[target_attr_index - 1]
-                                if (value) tbodies[th] = value
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        table.attr(`tbody`, tbodies.join(`,`))
-    }
 }
 
 function rbundle_html_table_case_dropdown_option_text_field_value(table, tr, td, option_index, field) {
