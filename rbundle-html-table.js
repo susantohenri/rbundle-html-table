@@ -63,7 +63,7 @@ function rbundle_html_table_update_thead_cell(th, formula, dt, table) {
                 })
         }
     }
-
+    else if (formula.startsWith(`table-in-page|`)) rbundle_html_table_table_in_page(table, dt)
     jQuery(dt.column(th).header()).text(result)
 }
 
@@ -72,7 +72,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     if (data) row_count = data.length
     else {
         row_count = table.attr(`row-count`)
-        row_count = rbundle_html_table_custom_row_count(table, row_count, function () {
+        row_count = rbundle_html_table_custom_row_count(table, dt, row_count, function () {
             rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data)
         })
     }
@@ -107,7 +107,7 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
     rbundle_html_table_fed_tr_amend(table, dt, `rbundle_html_table_update_tbody`, false)
 }
 
-function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
+function rbundle_html_table_custom_row_count(table, dt, row_count, redraw_body) {
     const table_id = table.attr(`id`)
     // row-count="current-year-minus-field840" => 2023 (current year) - 2022 (input value) + 1 (include current year) = 2 row
     if (row_count.startsWith(`current-year-minus-field`)) {
@@ -153,7 +153,10 @@ function rbundle_html_table_custom_row_count(table, row_count, redraw_body) {
     else if (row_count.startsWith(`fed-tr-amend-open-column`)) {
         return 1
     }
-
+    else if (row_count.startsWith(`table-in-page|`)) {
+        rbundle_html_table_table_in_page(table, dt)
+        return 1
+    }
     else return row_count
 }
 
@@ -408,6 +411,7 @@ function rbundle_html_table_update_tbody_cell(tr, td, formula, dt, table, predef
 
     else if (`index` === formula) result = tr + 1
     else if (`read-only-index` === formula) result = table.find(`tbody tr`).eq(tr).attr(`read-only-index`)
+    else if (formula.startsWith(`table-in-page|`)) rbundle_html_table_table_in_page(table, dt)
 
     dt.cell({ row: tr, column: td }).data(null === predefined ? result : predefined)
     const target_cell = table.find(`tbody`).find(`tr`).eq(tr).find(`td`).eq(td)
@@ -1031,4 +1035,73 @@ function rbundle_html_table_fed_tr_amend(table, dt, trigger_field, trigger_tr_in
             })
         }
     })
+}
+
+function rbundle_html_table_table_in_page(table, dt) {
+    const table_id = table.attr(`id`)
+    if (-1 < table.attr(`thead`).indexOf(`table-in-page|`)) {
+        var theads = table.attr(`thead`).split(`,`)
+        for (var th = 0; th < theads.length; th++) {
+            var thead = theads[th]
+            if (thead.startsWith(`table-in-page|`)) {
+                var formula = thead.split(`|`)
+                var taget_table_id = formula[1]
+                var target_attr = formula[2]
+                var target_table = jQuery(`table[id="${taget_table_id}"]`)
+                if (0 < target_table.length) {
+                    // https://github.com/susantohenri/rbundle-html-table/commit/5a614157282d5794920e7e6f5b9d706038d82610
+                }
+            }
+        }
+    }
+
+    var row_count = table.attr(`row-count`)
+    if (row_count.startsWith(`table-in-page|`)) {
+        var formula = row_count.split(`|`)
+        var taget_table_id = formula[1]
+        var target_attr = formula[2]
+        var target_table = jQuery(`table[id="${taget_table_id}"]`)
+        if (0 < target_table.length) {
+            if (`row-count` === target_attr) {
+                const target_row_count = target_table.find(`tbody tr`).length
+                rbundle_html_table_table_in_page_adjust_row_count(table, dt, target_row_count)
+                target_table.on(`change.rbundle_html_table_table_in_page-${table_id}`, () => {
+                    const target_row_count = target_table.find(`tbody tr`).length
+                    rbundle_html_table_table_in_page_adjust_row_count(table, dt, target_row_count)
+                })
+            }
+            //https://github.com/susantohenri/rbundle-html-table/commit/5a614157282d5794920e7e6f5b9d706038d82610
+        }
+    }
+
+    if (-1 < table.attr(`tbody`).indexOf(`table-in-page|`)) {
+        var tbodies = table.attr(`tbody`).split(`,`)
+        for (var th = 0; th < tbodies.length; th++) {
+            var tbody = tbodies[th]
+            if (tbody.startsWith(`table-in-page|`)) {
+                var formula = tbody.split(`|`)
+                var taget_table_id = formula[1]
+                var target_attr = formula[2]
+                var target_table = jQuery(`table[id="${taget_table_id}"]`)
+                if (0 < target_table.length) {
+                    //https://github.com/susantohenri/rbundle-html-table/commit/5a614157282d5794920e7e6f5b9d706038d82610
+                }
+            }
+        }
+    }
+}
+
+function rbundle_html_table_table_in_page_adjust_row_count(table, dt, next_row_count) {
+    const current_row_count = table.find(`tbody tr`).length
+    if (current_row_count === next_row_count) {
+
+    } else if (current_row_count <= next_row_count) {
+        for (let row = current_row_count; row < next_row_count; row++) {
+            rbundle_html_table_add_row(table, dt, row)
+        }
+    } else if (current_row_count > next_row_count) {
+        for (let row = current_row_count; row >= next_row_count; row--) {
+            rbundle_html_table_delete_row(table, dt, row)
+        }
+    }
 }

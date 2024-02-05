@@ -69,7 +69,8 @@ function rbundle_html_table_generate_shortcode() {
     for (var col = 0; col < jQuery(`.number-of-columns`).find(`[name="header[]"]`).length; col++) {
         var formula = jQuery(`.number-of-columns`).find(`[type="text"].step-3`).eq(col).val()
         if (formula.startsWith(`field`)) { }
-        if (formula.startsWith(`table|`)) { }
+        else if (formula.startsWith(`table|`)) { }
+        else if (formula.startsWith(`table-in-page|`)) { }
         else formula = '`' + formula.replaceAll('`', ``) + '`'
         athead.push(formula)
 
@@ -87,6 +88,7 @@ function rbundle_html_table_generate_shortcode() {
         else if (formula.indexOf(`currency-format`) > 1) { }
         else if (formula.startsWith(`if`)) { }
         else if (formula.startsWith(`table|`)) { }
+        else if (formula.startsWith(`table-in-page|`)) { }
         else if (`current-year` === formula) { }
         else if (formula.startsWith(`current-year-minus-`)) { }
         else if (formula.startsWith(`today-tax-year-by-field`)) { }

@@ -333,6 +333,12 @@ if 5 equals index-minus-1 then Yes else field###
 
 row-count="table|#anotherTableID|row-count"
 
+row-count="table-in-page|#anothertable-in-page-id|row-count"
+
+tbody="table-in-page|#anothertable-in-page-id|tbody|4"
+
+thead="table-in-page|#anothertable-in-page-id|thead|1"
+
 tbody="table|#anotherTableID|tbody|4"
 
 thead="table|#anotherTableID|thead|1"
