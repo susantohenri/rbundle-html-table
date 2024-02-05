@@ -559,7 +559,8 @@ function rbundle_html_table_update_thead_special_case_tooltip(table) {
         thead_target.append(`<i class="fa fa-icon fa-info-circle" style="font-size: 65%; vertical-align:super; color: blue;">&nbsp;`)
         const i = thead_target.find(`i.fa`)
         i.attr(`title`, thead_data_tooltip[th])
-        new bootstrap.Tooltip(i, { placement: `bottom` })
+        if (5 == bootstrap.Tooltip.VERSION[0]) i.tooltip({ placement: `bottom` })
+        else new bootstrap.Tooltip(i, { placement: `bottom` })
     }
 }
 
