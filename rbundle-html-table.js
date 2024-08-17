@@ -762,6 +762,14 @@ function rbundle_html_table_if_else_translate_value(value, tr) {
         const index = parseInt(tr) + 1
         const index_minus_num = index - parseInt(num)
         value = `TY - ${index_minus_num}`
+    } else if (value.startsWith(`field`)) {
+        const field_id = value.replace(`field`, ``)
+        const field = jQuery(`[name="item_meta[${field_id}]"]`)
+        if (field.length > 0) {
+            if (field.is(`:radio`)) value = jQuery(`[name="item_meta[${field_id}]"]:checked`).val()
+            else value = field.val()
+        }
+        // field.off(`change`, trigger-fn).on(`change`, re-trigger-fn) skip for now, not needed yet
     }
     return value
 }
