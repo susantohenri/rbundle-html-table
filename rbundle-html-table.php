@@ -277,6 +277,8 @@ current-year-minus-## (usage: current-year-minus-3)
 
 current-year-minus-field###
 
+current-year-minus-field###-until-year-####
+
 current-year-dash-index
 
 field###-slash-current-year

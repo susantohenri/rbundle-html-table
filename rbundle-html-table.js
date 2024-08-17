@@ -109,8 +109,31 @@ function rbundle_html_table_update_tbody(thead_length, tbody, dt, table, data) {
 
 function rbundle_html_table_custom_row_count(table, dt, row_count, redraw_body) {
     const table_id = table.attr(`id`)
+
+    // row-count="current-year-minus-field840-until-year-2020"
+    if (row_count.startsWith(`current-year-minus-field`) && -1 < row_count.indexOf(`-until-year-`)) {
+        var result = 0
+        const parse_formula = row_count.split(`-until-year-`)
+        const field_id = parse_formula[0].replace(`current-year-minus-field`, ``)
+        const field = jQuery(`[name="item_meta[${field_id}]"]`)
+        const current_year = parseInt((new Date()).getFullYear())
+
+        if (field.length > 0) {
+            const field_val = parseInt(field.val())
+            if (`` !== field_val) {
+                const limit_year = row_count.split(`-until-year-`)[1]
+                const bigger = limit_year > field_val ? limit_year : field_val
+                result = current_year - bigger + 1
+            }
+            field
+                .off(`change.rbundle_html_table_custom_row_count_${table_id}`)
+                .on(`change.rbundle_html_table_custom_row_count_${table_id}`, redraw_body)
+        }
+        return result
+    }
+
     // row-count="current-year-minus-field840" => 2023 (current year) - 2022 (input value) + 1 (include current year) = 2 row
-    if (row_count.startsWith(`current-year-minus-field`)) {
+    else if (row_count.startsWith(`current-year-minus-field`)) {
         var result = 0
         const field_id = row_count.replace(`current-year-minus-field`, ``)
         const field = jQuery(`[name="item_meta[${field_id}]"]`)
@@ -122,6 +145,7 @@ function rbundle_html_table_custom_row_count(table, dt, row_count, redraw_body) 
         }
         return result
     }
+
     /* row-count="field4163" */
     /* row-count="field4163+field4165-field3345" */
     else if (row_count.startsWith(`field`)) {
